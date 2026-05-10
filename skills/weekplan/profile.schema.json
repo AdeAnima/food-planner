@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WeekplanProfile",
+  "type": "object",
+  "required": ["version", "household", "location", "diet", "preferences"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "integer", "const": 1 },
+    "household": {
+      "type": "object",
+      "required": ["size", "portionsPerMeal"],
+      "properties": {
+        "size": { "type": "integer", "minimum": 1 },
+        "portionsPerMeal": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "location": {
+      "type": "object",
+      "description": "Either address or zipCode must be set. address wins when both present.",
+      "properties": {
+        "address": { "type": "string" },
+        "zipCode": { "type": "string", "pattern": "^\\d{5}$" },
+        "shoppingRadiusKm": { "type": "number", "minimum": 0.1, "maximum": 50 }
+      },
+      "anyOf": [
+        { "required": ["address"] },
+        { "required": ["zipCode"] }
+      ]
+    },
+    "diet": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["omnivore", "pescetarian", "vegetarian", "vegan"] },
+        "lowHistamine": { "type": "boolean" },
+        "preferVeganDairyAlternatives": { "type": "boolean" },
+        "forbidden": { "type": "array", "items": { "type": "string" } },
+        "flaggedButAllowed": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "preferences": {
+      "type": "object",
+      "properties": {
+        "cadenceDefault": { "type": "string", "enum": ["dinner-only", "lunch-and-dinner"] },
+        "preferredStores": { "type": "array", "items": { "type": "string" } },
+        "maxRecipesPerWeek": { "type": "integer", "minimum": 1, "maximum": 14 },
+        "maxSameProteinPerWeek": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}

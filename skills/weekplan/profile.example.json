@@ -1,0 +1,32 @@
+{
+  "$schema": "./profile.schema.json",
+  "version": 1,
+  "household": {
+    "size": 2,
+    "portionsPerMeal": 2
+  },
+  "location": {
+    "address": "Marienplatz 1, München",
+    "zipCode": "80331",
+    "shoppingRadiusKm": 3
+  },
+  "diet": {
+    "type": "pescetarian",
+    "lowHistamine": true,
+    "preferVeganDairyAlternatives": true,
+    "forbidden": [
+      "Parmesan", "Pecorino", "Räucherlachs",
+      "Schwein", "Rind", "Wurst",
+      "Avocado", "Spinat", "Aubergine"
+    ],
+    "flaggedButAllowed": [
+      "Tomatenmark", "Sojasauce"
+    ]
+  },
+  "preferences": {
+    "cadenceDefault": "dinner-only",
+    "preferredStores": ["lidl", "rewe", "edeka"],
+    "maxRecipesPerWeek": 7,
+    "maxSameProteinPerWeek": 2
+  }
+}

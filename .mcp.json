@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "supermarkets-mcp": {
+      "type": "stdio",
+      "command": "/Users/marten/Code/ade_anima/food-planner/mcp-servers/supermarkets-mcp/bin/serve.sh",
+      "args": [],
+      "env": {}
+    },
+    "cookidoo": {
+      "type": "stdio",
+      "command": "/Users/marten/Code/ade_anima/food-planner/mcp-servers/cookidoo/bin/serve.sh",
+      "args": [],
+      "env": {}
+    }
+  }
+}

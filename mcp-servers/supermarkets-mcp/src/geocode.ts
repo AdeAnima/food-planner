@@ -1,11 +1,28 @@
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+
+async function atomicWriteJson(path: string, data: unknown, mode = 0o644): Promise<void> {
+  const tmp = `${path}.tmp.${process.pid}.${Date.now()}`;
+  await writeFile(tmp, JSON.stringify(data, null, 2), { encoding: "utf8", mode });
+  await rename(tmp, path);
+}
 
 const NOMINATIM = "https://nominatim.openstreetmap.org";
 const OVERPASS = "https://overpass-api.de/api/interpreter";
-const UA = "food-planner-mcp/0.1 (contact: martin@westphal.pw)";
 const CACHE_DIR = join(homedir(), ".marktguru");
+
+function getUserAgent(): string {
+  const contact = process.env.WEEKPLAN_CONTACT?.trim();
+  if (!contact) {
+    throw new Error(
+      "supermarkets-mcp: WEEKPLAN_CONTACT env var is required (your email or URL). " +
+        "Nominatim and Overpass usage policies require operator contact info in the User-Agent. " +
+        "Set in profile.location.nominatimContact or pass via env."
+    );
+  }
+  return `food-planner-mcp/0.1 (contact: ${contact})`;
+}
 const GEOCODE_CACHE = join(CACHE_DIR, "geocode.json");
 const STORES_CACHE = join(CACHE_DIR, "stores-osm.json");
 const FETCH_TIMEOUT_MS = 15000;
@@ -51,7 +68,7 @@ async function readJsonCache<T>(path: string): Promise<Record<string, T>> {
 
 async function writeJsonCache<T>(path: string, data: Record<string, T>): Promise<void> {
   await mkdir(CACHE_DIR, { recursive: true });
-  await writeFile(path, JSON.stringify(data, null, 2), "utf8");
+  await atomicWriteJson(path, data);
 }
 
 export function isGermanZip(input: string): boolean {
@@ -75,7 +92,7 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult> {
   url.searchParams.set("countrycodes", "de");
   url.searchParams.set("limit", "1");
 
-  const r = await fetchWithTimeout(url, { headers: { "User-Agent": UA, "Accept-Language": "de-DE,de;q=0.9" } });
+  const r = await fetchWithTimeout(url, { headers: { "User-Agent": getUserAgent(), "Accept-Language": "de-DE,de;q=0.9" } });
   if (!r.ok) throw new Error(`Nominatim geocode failed: ${r.status} ${await r.text()}`);
 
   const results = (await r.json()) as Array<{
@@ -170,7 +187,7 @@ out center tags;
 
   const r = await fetchWithTimeout(OVERPASS, {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded", "User-Agent": UA },
+    headers: { "Content-Type": "application/x-www-form-urlencoded", "User-Agent": getUserAgent() },
     body: `data=${encodeURIComponent(query)}`,
   }, 30000);
   if (!r.ok) throw new Error(`Overpass query failed: ${r.status} ${await r.text()}`);

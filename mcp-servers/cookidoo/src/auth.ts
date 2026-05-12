@@ -1,4 +1,4 @@
-import { chmod, mkdir, readFile, writeFile, unlink } from "node:fs/promises";
+import { chmod, mkdir, readFile, rename, writeFile, unlink } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
@@ -32,8 +32,10 @@ export async function readCookieHeader(): Promise<string | null> {
 
 export async function writeCookieHeader(cookieHeader: string): Promise<void> {
   await mkdir(COOKIE_DIR, { recursive: true });
-  await writeFile(COOKIE_FILE, cookieHeader, { encoding: "utf8", mode: 0o600 });
-  await chmod(COOKIE_FILE, 0o600);
+  const tmp = `${COOKIE_FILE}.tmp.${process.pid}.${Date.now()}`;
+  await writeFile(tmp, cookieHeader, { encoding: "utf8", mode: 0o600 });
+  await chmod(tmp, 0o600);
+  await rename(tmp, COOKIE_FILE);
 }
 
 export async function deleteCookieHeader(): Promise<boolean> {

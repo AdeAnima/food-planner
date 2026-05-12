@@ -124,14 +124,15 @@ server.registerTool(
   "add_to_week",
   {
     title: "Add Cookidoo recipes to week plan",
-    description: "Adds one or more Cookidoo recipes to a specific Meine Woche day.",
+    description: "Adds one or more Cookidoo recipes to a specific Meine Woche day. Idempotent by default — skips recipes already present on that day. Pass force=true to add unconditionally (allows duplicates).",
     inputSchema: {
       recipeIds: z.array(z.string()).describe("Recipe IDs, numeric or 'r'-prefixed"),
       dayKey: z.string().describe("Cookidoo day key / ISO date YYYY-MM-DD"),
+      force: z.boolean().optional().describe("Skip dedupe check; add unconditionally"),
     },
   },
-  async ({ recipeIds, dayKey }) => {
-    const result = await addToWeek(recipeIds, dayKey);
+  async ({ recipeIds, dayKey, force }) => {
+    const result = await addToWeek(recipeIds, dayKey, { force });
     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
   },
 );

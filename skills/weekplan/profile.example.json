@@ -8,7 +8,8 @@
   "location": {
     "address": "Marienplatz 1, München",
     "zipCode": "80331",
-    "shoppingRadiusKm": 3
+    "shoppingRadiusKm": 3,
+    "nominatimContact": "your.email@example.com"
   },
   "diet": {
     "type": "pescetarian",

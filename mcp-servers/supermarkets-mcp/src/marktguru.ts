@@ -1,6 +1,12 @@
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+
+async function atomicWriteJson(path: string, data: unknown, mode = 0o644): Promise<void> {
+  const tmp = `${path}.tmp.${process.pid}.${Date.now()}`;
+  await writeFile(tmp, JSON.stringify(data, null, 2), { encoding: "utf8", mode });
+  await rename(tmp, path);
+}
 
 const HOMEPAGE = "https://www.marktguru.de/";
 const API_BASE = "https://api.marktguru.de/api/v1";
@@ -90,7 +96,7 @@ async function readKeyCache(): Promise<MarktguruKeys | null> {
 
 async function writeKeyCache(keys: MarktguruKeys): Promise<void> {
   await mkdir(join(homedir(), ".marktguru"), { recursive: true });
-  await writeFile(KEY_CACHE, JSON.stringify(keys, null, 2), "utf8");
+  await atomicWriteJson(KEY_CACHE, keys, 0o600);
 }
 
 async function scrapeKeysFromHtml(html: string): Promise<{ apiKey: string; clientKey: string } | null> {
@@ -199,11 +205,21 @@ export const DEFAULT_BASKET_TERMS = [
   "Olivenöl","Butter","Käse",
 ];
 
+const DEFAULT_OFFER_WINDOW_MS = 7 * 24 * 3600 * 1000;
+
 function isCurrentlyValid(o: Offer, now: number): boolean {
   if (!o.validityDates || o.validityDates.length === 0) return true;
   return o.validityDates.some((d) => {
     const from = Date.parse(d.from);
-    const until = Date.parse(d.to ?? d.until ?? d.from);
+    if (Number.isNaN(from)) return false;
+    let until: number;
+    const explicit = d.to ?? d.until;
+    if (explicit) {
+      const parsed = Date.parse(explicit);
+      until = Number.isNaN(parsed) ? from + DEFAULT_OFFER_WINDOW_MS : parsed;
+    } else {
+      until = from + DEFAULT_OFFER_WINDOW_MS;
+    }
     return from <= now && now <= until + 24 * 3600 * 1000;
   });
 }
@@ -221,7 +237,9 @@ function stringifyError(error: unknown): string {
 function classifyFailure(error?: string): string {
   if (!error) return "unknown";
   const normalized = error.toLowerCase();
-  if (/\b(401|403)\b/.test(normalized) || normalized.includes("auth")) return "authentication";
+  if (/\b(401|403)\b/.test(normalized) || /\b(unauthorized|unauthenticated|forbidden)\b/.test(normalized) || /\bauth(?:entication|orization)?\s*(?:failure|failed|error|required)\b/.test(normalized)) {
+    return "authentication";
+  }
   if (normalized.includes("timeout") || normalized.includes("network") || normalized.includes("fetch failed") || /\beconn|enotfound|eai_again\b/.test(normalized)) {
     return "network";
   }

@@ -16,11 +16,17 @@
     },
     "location": {
       "type": "object",
-      "description": "Either address or zipCode must be set. address wins when both present.",
+      "description": "Either address or zipCode must be set. address wins when both present. nominatimContact required for any address-based lookup (your email or URL — Nominatim/Overpass usage policy).",
+      "required": ["nominatimContact"],
       "properties": {
         "address": { "type": "string" },
         "zipCode": { "type": "string", "pattern": "^\\d{5}$" },
-        "shoppingRadiusKm": { "type": "number", "minimum": 0.1, "maximum": 50 }
+        "shoppingRadiusKm": { "type": "number", "minimum": 0.1, "maximum": 50 },
+        "nominatimContact": {
+          "type": "string",
+          "description": "Your email or URL. Sent as User-Agent contact to Nominatim/Overpass per their usage policy.",
+          "minLength": 5
+        }
       },
       "anyOf": [
         { "required": ["address"] },

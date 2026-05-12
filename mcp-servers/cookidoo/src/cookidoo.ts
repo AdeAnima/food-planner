@@ -28,13 +28,22 @@ async function fetchWithTimeout(url: string | URL, init: RequestInit = {}, timeo
   }
 }
 
+let lastUsedCookie: string | null = null;
+
 async function authedFetch(url: string, init: RequestInit = {}): Promise<Response> {
   const cookie = await loadCookieHeader();
+  lastUsedCookie = cookie;
   const headers = new Headers(init.headers);
   headers.set("Cookie", cookie);
   headers.set("User-Agent", UA);
   headers.set("Accept-Language", "de-DE,de;q=0.9");
   return fetchWithTimeout(url, { ...init, headers });
+}
+
+async function cookieChangedSince(prev: string | null): Promise<boolean> {
+  if (!prev) return true;
+  const current = await loadCookieHeader();
+  return current !== prev;
 }
 
 function isAuthFailure(status: number): boolean {
@@ -44,7 +53,8 @@ function isAuthFailure(status: number): boolean {
 function persistentAuthError(operation: string, status: number): Error {
   return new Error(
     `${operation} failed with persistent auth failure after ${MAX_AUTH_RETRIES} retry: ${status}. ` +
-      "Re-authenticate Cookidoo, then run `bun run src/import-state.ts <path-to-playwright-state.json>` to refresh stored cookies.",
+      "Cookie file unchanged between retries — re-authenticate Cookidoo, then run " +
+      "`bun run src/import-state.ts <path-to-playwright-state.json>` to refresh stored cookies.",
   );
 }
 
@@ -53,7 +63,11 @@ function normalizeRecipeId(recipeId: string): string {
 }
 
 async function authedWrite(operation: string, method: string, url: string, body: unknown, referer = "https://cookidoo.de/"): Promise<unknown> {
+  let prevCookie: string | null = null;
   for (let attempt = 0; attempt <= MAX_AUTH_RETRIES; attempt++) {
+    if (attempt > 0 && !(await cookieChangedSince(prevCookie))) {
+      throw persistentAuthError(operation, 401);
+    }
     const r = await authedFetch(url, {
       method,
       headers: {
@@ -63,6 +77,7 @@ async function authedWrite(operation: string, method: string, url: string, body:
       },
       body: JSON.stringify(body),
     });
+    prevCookie = lastUsedCookie;
 
     if (isAuthFailure(r.status)) {
       if (attempt >= MAX_AUTH_RETRIES) throw persistentAuthError(operation, r.status);
@@ -210,13 +225,16 @@ function extractJsonLdBlocks(html: string): unknown[] {
   return blocks;
 }
 
-export async function getRecipe(id: string, attempt = 0): Promise<RecipeDetail> {
+export async function getRecipe(id: string, attempt = 0, prevCookie: string | null = null): Promise<RecipeDetail> {
   const recipeId = normalizeRecipeId(id);
   const url = `${BASE}/recipes/recipe/de-DE/${recipeId}`;
+  if (attempt > 0 && !(await cookieChangedSince(prevCookie))) {
+    throw persistentAuthError("recipe fetch", 401);
+  }
   const r = await authedFetch(url);
   if (isAuthFailure(r.status)) {
     if (attempt >= MAX_AUTH_RETRIES) throw persistentAuthError("recipe fetch", r.status);
-    return getRecipe(id, attempt + 1);
+    return getRecipe(id, attempt + 1, lastUsedCookie);
   }
   if (!r.ok) throw new Error(`recipe fetch failed: ${r.status}`);
   const html = await r.text();
@@ -291,11 +309,14 @@ function getCurrentWeekMonday(): string {
   return localISODate(monday);
 }
 
-export async function getDayPlan(dayKey: string, attempt = 0): Promise<DayPlan> {
+export async function getDayPlan(dayKey: string, attempt = 0, prevCookie: string | null = null): Promise<DayPlan> {
+  if (attempt > 0 && !(await cookieChangedSince(prevCookie))) {
+    throw persistentAuthError("day plan fetch", 401);
+  }
   const r = await authedFetch(`${BASE}/planning/de-DE/api/my-day/${encodeURIComponent(dayKey)}`);
   if (isAuthFailure(r.status)) {
     if (attempt >= MAX_AUTH_RETRIES) throw persistentAuthError("day plan fetch", r.status);
-    return getDayPlan(dayKey, attempt + 1);
+    return getDayPlan(dayKey, attempt + 1, lastUsedCookie);
   }
   if (!r.ok) throw new Error(`day plan fetch failed: ${r.status}`);
   const data = (await r.json()) as MyDayResponse;
@@ -307,12 +328,15 @@ export async function getDayPlan(dayKey: string, attempt = 0): Promise<DayPlan> 
   };
 }
 
-export async function getWeekPlan(startDate?: string, span = 7, attempt = 0): Promise<WeekPlan> {
+export async function getWeekPlan(startDate?: string, span = 7, attempt = 0, prevCookie: string | null = null): Promise<WeekPlan> {
   const date = startDate ?? getCurrentWeekMonday();
+  if (attempt > 0 && !(await cookieChangedSince(prevCookie))) {
+    throw persistentAuthError("week plan fetch", 401);
+  }
   const r = await authedFetch(`${BASE}/planning/de-DE/api/my-day/planned-recipes/${date}?span=${span}`);
   if (isAuthFailure(r.status)) {
     if (attempt >= MAX_AUTH_RETRIES) throw persistentAuthError("week plan fetch", r.status);
-    return getWeekPlan(startDate, span, attempt + 1);
+    return getWeekPlan(startDate, span, attempt + 1, lastUsedCookie);
   }
   if (!r.ok) throw new Error(`week plan fetch failed: ${r.status}`);
   const raw = (await r.json()) as PlannedRecipesResponse;
@@ -330,14 +354,48 @@ export async function getWeekPlan(startDate?: string, span = 7, attempt = 0): Pr
   return { dayKeys: days };
 }
 
-export async function addToWeek(recipeIds: string[], dayKey: string): Promise<unknown> {
+export async function addToWeek(
+  recipeIds: string[],
+  dayKey: string,
+  options: { force?: boolean } = {},
+): Promise<{ added: string[]; skipped: string[] }> {
   const normalizedIds = recipeIds.map(normalizeRecipeId);
-  return authedWrite("add to week", "PUT", `${BASE}/planning/de-DE/api/my-day`, {
+  let toAdd = normalizedIds;
+  const skipped: string[] = [];
+
+  if (!options.force) {
+    try {
+      const day = await getDayPlan(dayKey);
+      const existing = new Set<string>();
+      for (const r of day.recipes) {
+        const id = r.id ?? (typeof r.recipeId === "string" ? (r.recipeId as string) : undefined);
+        if (id) existing.add(normalizeRecipeId(id));
+      }
+      for (const id of day.recipeIds ?? []) existing.add(normalizeRecipeId(id));
+
+      toAdd = [];
+      for (const id of normalizedIds) {
+        if (existing.has(id)) skipped.push(id);
+        else toAdd.push(id);
+      }
+    } catch {
+      // If we can't read the day, fall through and add unconditionally — caller
+      // will see the result and can retry. Don't block on dedupe lookup failure.
+      toAdd = normalizedIds;
+    }
+  }
+
+  if (toAdd.length === 0) {
+    return { added: [], skipped };
+  }
+
+  await authedWrite("add to week", "PUT", `${BASE}/planning/de-DE/api/my-day`, {
     _method: "put",
     recipeSource: "VORWERK",
-    recipeIds: normalizedIds,
+    recipeIds: toAdd,
     dayKey,
   });
+  return { added: toAdd, skipped };
 }
 
 export async function removeFromWeek(recipeId: string, dayKey: string): Promise<unknown> {

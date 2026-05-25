@@ -28,16 +28,14 @@ async function fetchWithTimeout(url: string | URL, init: RequestInit = {}, timeo
   }
 }
 
-let lastUsedCookie: string | null = null;
-
-async function authedFetch(url: string, init: RequestInit = {}): Promise<Response> {
+async function authedFetch(url: string, init: RequestInit = {}): Promise<{ response: Response; cookie: string }> {
   const cookie = await loadCookieHeader();
-  lastUsedCookie = cookie;
   const headers = new Headers(init.headers);
   headers.set("Cookie", cookie);
   headers.set("User-Agent", UA);
   headers.set("Accept-Language", "de-DE,de;q=0.9");
-  return fetchWithTimeout(url, { ...init, headers });
+  const response = await fetchWithTimeout(url, { ...init, headers });
+  return { response, cookie };
 }
 
 async function cookieChangedSince(prev: string | null): Promise<boolean> {
@@ -68,7 +66,7 @@ async function authedWrite(operation: string, method: string, url: string, body:
     if (attempt > 0 && !(await cookieChangedSince(prevCookie))) {
       throw persistentAuthError(operation, 401);
     }
-    const r = await authedFetch(url, {
+    const { response: r, cookie } = await authedFetch(url, {
       method,
       headers: {
         "Content-Type": "application/json",
@@ -77,7 +75,7 @@ async function authedWrite(operation: string, method: string, url: string, body:
       },
       body: JSON.stringify(body),
     });
-    prevCookie = lastUsedCookie;
+    prevCookie = cookie;
 
     if (isAuthFailure(r.status)) {
       if (attempt >= MAX_AUTH_RETRIES) throw persistentAuthError(operation, r.status);
@@ -105,7 +103,7 @@ export async function getSearchToken(force = false): Promise<{ apiKey: string; s
   if (!force && cachedToken && cachedToken.validUntil > now + 60) {
     return { apiKey: cachedToken.apiKey, subscriptionLevel: cachedToken.subscriptionLevel };
   }
-  const r = await authedFetch(`${BASE}/search/api/subscription/token`);
+  const { response: r } = await authedFetch(`${BASE}/search/api/subscription/token`);
   if (!r.ok) throw new Error(`cookidoo token endpoint failed: ${r.status} ${await r.text()}`);
   const json = (await r.json()) as SubscriptionTokenResponse;
   cachedToken = { apiKey: json.apiKey, validUntil: json.validUntil, subscriptionLevel: json.subscriptionLevel };
@@ -231,10 +229,10 @@ export async function getRecipe(id: string, attempt = 0, prevCookie: string | nu
   if (attempt > 0 && !(await cookieChangedSince(prevCookie))) {
     throw persistentAuthError("recipe fetch", 401);
   }
-  const r = await authedFetch(url);
+  const { response: r, cookie } = await authedFetch(url);
   if (isAuthFailure(r.status)) {
     if (attempt >= MAX_AUTH_RETRIES) throw persistentAuthError("recipe fetch", r.status);
-    return getRecipe(id, attempt + 1, lastUsedCookie);
+    return getRecipe(id, attempt + 1, cookie);
   }
   if (!r.ok) throw new Error(`recipe fetch failed: ${r.status}`);
   const html = await r.text();
@@ -313,10 +311,10 @@ export async function getDayPlan(dayKey: string, attempt = 0, prevCookie: string
   if (attempt > 0 && !(await cookieChangedSince(prevCookie))) {
     throw persistentAuthError("day plan fetch", 401);
   }
-  const r = await authedFetch(`${BASE}/planning/de-DE/api/my-day/${encodeURIComponent(dayKey)}`);
+  const { response: r, cookie } = await authedFetch(`${BASE}/planning/de-DE/api/my-day/${encodeURIComponent(dayKey)}`);
   if (isAuthFailure(r.status)) {
     if (attempt >= MAX_AUTH_RETRIES) throw persistentAuthError("day plan fetch", r.status);
-    return getDayPlan(dayKey, attempt + 1, lastUsedCookie);
+    return getDayPlan(dayKey, attempt + 1, cookie);
   }
   if (!r.ok) throw new Error(`day plan fetch failed: ${r.status}`);
   const data = (await r.json()) as MyDayResponse;
@@ -333,23 +331,31 @@ export async function getWeekPlan(startDate?: string, span = 7, attempt = 0, pre
   if (attempt > 0 && !(await cookieChangedSince(prevCookie))) {
     throw persistentAuthError("week plan fetch", 401);
   }
-  const r = await authedFetch(`${BASE}/planning/de-DE/api/my-day/planned-recipes/${date}?span=${span}`);
+  const { response: r, cookie } = await authedFetch(`${BASE}/planning/de-DE/api/my-day/planned-recipes/${date}?span=${span}`);
   if (isAuthFailure(r.status)) {
     if (attempt >= MAX_AUTH_RETRIES) throw persistentAuthError("week plan fetch", r.status);
-    return getWeekPlan(startDate, span, attempt + 1, lastUsedCookie);
+    return getWeekPlan(startDate, span, attempt + 1, cookie);
   }
   if (!r.ok) throw new Error(`week plan fetch failed: ${r.status}`);
   const raw = (await r.json()) as PlannedRecipesResponse;
   const dayKeys = Array.isArray(raw.dayKeys) ? raw.dayKeys : [];
   const settled = await Promise.allSettled(dayKeys.map((k) => getDayPlan(k)));
   const days: DayPlan[] = [];
+  const failures: string[] = [];
   for (let i = 0; i < settled.length; i++) {
     const result = settled[i];
     if (result.status === "fulfilled") {
       days.push(result.value);
     } else {
-      days.push({ date: dayKeys[i], recipes: [] });
+      const reason = result.reason instanceof Error ? result.reason.message : String(result.reason);
+      failures.push(`${dayKeys[i]}: ${reason}`);
     }
+  }
+  if (failures.length > 0) {
+    throw new Error(
+      `week plan fetch: ${failures.length} day(s) failed to load, refusing to return a partial plan ` +
+        `(a snapshot built on incomplete data could delete recipes): ${failures.join("; ")}`,
+    );
   }
   return { dayKeys: days };
 }
@@ -359,7 +365,7 @@ export async function addToWeek(
   dayKey: string,
   options: { force?: boolean } = {},
 ): Promise<{ added: string[]; skipped: string[] }> {
-  const normalizedIds = recipeIds.map(normalizeRecipeId);
+  const normalizedIds = [...new Set(recipeIds.map(normalizeRecipeId))];
   let toAdd = normalizedIds;
   const skipped: string[] = [];
 
@@ -378,10 +384,11 @@ export async function addToWeek(
         if (existing.has(id)) skipped.push(id);
         else toAdd.push(id);
       }
-    } catch {
-      // If we can't read the day, fall through and add unconditionally — caller
-      // will see the result and can retry. Don't block on dedupe lookup failure.
-      toAdd = normalizedIds;
+    } catch (e) {
+      throw new Error(
+        `add to week: could not read day plan ${dayKey} for dedupe check: ${e instanceof Error ? e.message : String(e)}. ` +
+          "Pass force:true to skip the dedupe read and add unconditionally.",
+      );
     }
   }
 

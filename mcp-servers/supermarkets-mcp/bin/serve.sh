@@ -17,7 +17,7 @@ fi
 # Nominatim/Overpass usage policies require operator contact info in User-Agent.
 profile="${HOME}/.weekplan/profile.json"
 if [[ -z "${WEEKPLAN_CONTACT:-}" && -f "$profile" ]]; then
-  contact="$(awk -F'"' '/"nominatimContact"[[:space:]]*:/ {print $4; exit}' "$profile" 2>/dev/null || true)"
+  contact="$(bun -e 'const p=require(process.argv[1]);process.stdout.write(p?.location?.nominatimContact??"")' "$profile" 2>/dev/null || true)"
   if [[ -n "$contact" ]]; then
     export WEEKPLAN_CONTACT="$contact"
   fi

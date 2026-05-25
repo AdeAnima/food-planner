@@ -12,17 +12,19 @@ End-to-end pipeline: load profile → geocode → current supermarket offers →
 ## Modes
 
 - **Interactive (default)** — ask cadence question, ask whether to extend/replace existing plan, surface clarifying questions when ambiguous.
-- **Auto / unattended** — triggered ONLY by explicit flag: argv contains `--auto` OR env `WEEKPLAN_AUTO=1`. Substring matches on prompt text MUST NOT activate auto mode (false-positive risk would destroy an existing curated plan without confirmation). In auto mode: NEVER call AskUserQuestion. Use defaults from profile.json. REPLACE existing plan via snapshot-then-replace (see "Snapshot before destructive ops" below) — never call `clear_week` unconditionally as the first step. Auto mode must complete with no user-facing prompts.
+- **Auto / unattended** — triggered ONLY by explicit flag: argv contains `--auto` OR env `WEEKPLAN_AUTO=1`. Substring matches on prompt text MUST NOT activate auto mode (false-positive risk would destroy an existing curated plan without confirmation). In auto mode: NEVER call AskUserQuestion. Use defaults from profile.json. REPLACE existing plan via snapshot-then-replace (see "Snapshot before destructive ops" below). NEVER call `clear_week` — it is not part of the replace flow under any mode. Auto mode must complete with no user-facing prompts.
 
 ### Snapshot before destructive ops
 
-Before any `clear_week` or bulk `remove_from_week`, ALWAYS:
+This block applies to REPLACE mode ONLY (auto, or interactive replace). EXTEND mode never enters it — it has no snapshot and no removal step, so its writes are purely additive and a partial `add_to_week` failure is non-fatal (record in Notes, continue).
+
+In REPLACE mode, before any bulk `remove_from_week`, ALWAYS:
 1. Call `mcp__cookidoo__get_week_plan` and serialize the full result to `~/.weekplan/snapshots/<YYYY-MM-DD>-pre-replace.json` with `mtime`, mode (auto|interactive), and the planned new entries.
 2. Only after the snapshot is on disk: perform `add_to_week` for the NEW recipes first.
-3. Only after all `add_to_week` writes succeed: perform `remove_from_week` for each old entry recorded in the snapshot.
+3. Only after all `add_to_week` writes succeed: compute the set difference on the composite key `{recipeId, dayKey}` — `to_remove = snapshot_entries \ new_entries`, where each entry is the pair (recipeId, dayKey). Compare recipeIds as the exact normalized string the tool returns (the `rNNN` form). Perform `remove_from_week({recipeId, dayKey})` for each pair in `to_remove`. A recipe that stays on the SAME day in both old and new plan is retained (never removed). A recipe that MOVES to a different day appears as an old (recipeId, oldDay) pair in `to_remove` (removed) plus a new (recipeId, newDay) pair added in step 2 — so the stale day is correctly cleared. Recipes the user added manually outside the snapshot are left untouched.
 4. On any failure during step 2 or 3: STOP. Do not continue. Report failure with path to the snapshot file. The user can restore manually by replaying the snapshot.
 
-This replaces the previous "clear_week first" pattern, which had no rollback path.
+This replaces the previous "clear_week first" pattern, which had no rollback path. `clear_week` is never used for replacement.
 
 ## Inputs
 
@@ -49,7 +51,7 @@ Interactive: confirm `preferences.cadenceDefault` is right for this week ("Diese
 
 ### Existing week plan
 
-Call `mcp__cookidoo__get_week_plan` first. Defaults to Monday of current local week. Interactive: if non-empty, ask whether to extend or replace (replace = call `clear_week`). Auto: replace silently via `clear_week`.
+Call `mcp__cookidoo__get_week_plan` first. Defaults to Monday of current local week. Interactive: if non-empty, ask whether to extend or replace (replace = snapshot-then-set-diff, see step 8 / "Snapshot before destructive ops"). Auto: replace silently via the same snapshot-then-set-diff flow. NEVER call `clear_week` as the replace mechanism.
 
 ## Outputs — `~/.weekplan/plans/<YYYY-MM-DD>/`
 
@@ -106,14 +108,14 @@ For each chosen recipe + dayKey (YYYY-MM-DD, Mon-Sun of target week):
 - `mcp__cookidoo__add_to_week({recipeIds: [id], dayKey})`
 - `mcp__cookidoo__add_to_shopping_list({recipeIds: [id]})` (covers all ingredients)
 
-Write order (snapshot-then-replace, NEVER unconditional clear):
+Write order (snapshot-then-replace, `clear_week` is NEVER used):
 1. Call `mcp__cookidoo__get_week_plan({startDate, span: 7})` and write the result + the planned new entries to `~/.weekplan/snapshots/<YYYY-MM-DD>-pre-replace.json` BEFORE any write.
 2. Auto mode + Interactive replace: `add_to_week` ALL new recipes first.
-3. Only after all new `add_to_week` writes succeed: `remove_from_week` each entry recorded in the snapshot.
+3. Only after all new `add_to_week` writes succeed: compute `to_remove = snapshot_entries \ new_entries` on the composite key `{recipeId, dayKey}` (recipeId compared as the exact normalized `rNNN` string), and `remove_from_week({recipeId, dayKey})` only those pairs. A recipe on the same day in both plans is retained; a day-moved recipe has its old (recipeId, oldDay) pair removed here and its new (recipeId, newDay) pair added in step 2; manually-added recipes outside the snapshot are left untouched.
 4. Interactive extend: skip steps 1 + 3, just `add_to_week` new recipes alongside existing.
 5. Always `add_to_shopping_list` for the new chosen recipes (regardless of mode).
 
-If any `add_to_week` fails: STOP. Do not call `remove_from_week`. Report failure with snapshot path so the user can resume manually. The original plan must remain intact when our writes haven't fully succeeded.
+REPLACE mode only — if any `add_to_week` fails: STOP. Do not call `remove_from_week`. Report failure with snapshot path so the user can resume manually. The original plan must remain intact when our writes haven't fully succeeded. (EXTEND mode has no removal step, so a partial `add_to_week` failure is safe — see Failure modes.)
 
 ### 9. Build shopping list — cost vs distance
 For each ingredient across the 7 plans:
@@ -175,15 +177,15 @@ Write (cookidoo-mcp, ToS-risk override accepted 2026-05-06):
 3. Geocode address (if set) + find_stores_nearby
 4. Cadence: ask interactively, default from profile in auto
 5. Read existing Cookidoo week plan
-6. If replace mode: snapshot existing plan to `~/.weekplan/snapshots/<YYYY-MM-DD>-pre-replace.json` (NO `clear_week` yet)
+6. If replace mode: snapshot existing plan to `~/.weekplan/snapshots/<YYYY-MM-DD>-pre-replace.json` (`clear_week` is never called)
 7. Fetch weekly offers (using resolved address/zip + preferredStores)
 8. Apply diet filter to offers
 9. Search Cookidoo for top offer-ingredients (use random_recipe to fill gaps)
 10. Fetch recipe details in parallel
 11. Apply diet filter to recipes
 12. Greedy assembly with overlap optimization
-13. `add_to_week` per chosen recipe + dayKey — STOP entire pipeline if any write fails
-14. Only after all new `add_to_week` writes succeed AND mode is replace: `remove_from_week` each snapshot entry
+13. `add_to_week` per chosen recipe + dayKey — in REPLACE mode, STOP entire pipeline if any write fails (do not run step 14); in EXTEND mode, a failed write is non-fatal (no removal follows) — record it in Notes and continue
+14. Only after all new `add_to_week` writes succeed AND mode is replace: `remove_from_week({recipeId, dayKey})` each pair in `to_remove` (= snapshot {recipeId,dayKey} pairs minus new-plan pairs; same-day retained recipes stay, day-moved recipes get their old day cleared)
 15. `add_to_shopping_list` for all chosen recipes
 16. Build cost-vs-distance shopping plan using find_stores_nearby data
 17. Write 4 output files to `~/.weekplan/plans/<YYYY-MM-DD>/`
@@ -198,8 +200,8 @@ Write (cookidoo-mcp, ToS-risk override accepted 2026-05-06):
 - **Marktguru offer endpoint TLS or rate-limit** → degrade to generic seasonal basket without offer matching; warn user.
 - **Histamine list too restrictive** → if <7 valid recipes survive after 2 search rounds, broaden basket terms and re-search before failing.
 - **No vegan dairy alt in offers** → fall back to lactose-free dairy at primary store; surface in notes.
-- **`add_to_week` fails for some recipes** → continue pipeline, list failed (recipe, dayKey, error) in Notes section so user can manually add via URL fallback.
-- **`add_to_week` fails partially** → STOP. Do not run `remove_from_week`. Surface the snapshot path so the user can resume manually. The new writes will simply append. Note it in output.
+- **`add_to_week` fails in EXTEND mode (no removal step)** → continue pipeline, list failed (recipe, dayKey, error) in Notes section so user can manually add via URL fallback. Safe because nothing gets removed.
+- **`add_to_week` fails in REPLACE mode** → STOP. Do NOT run `remove_from_week`. Surface the snapshot path so the user can resume manually. The partial new writes simply append to the existing plan (nothing destroyed). Note it in output.
 
 ## After completing
 

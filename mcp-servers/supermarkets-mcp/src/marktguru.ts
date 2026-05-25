@@ -216,11 +216,14 @@ function isCurrentlyValid(o: Offer, now: number): boolean {
     const explicit = d.to ?? d.until;
     if (explicit) {
       const parsed = Date.parse(explicit);
-      until = Number.isNaN(parsed) ? from + DEFAULT_OFFER_WINDOW_MS : parsed;
+      // Explicit date-only string parses to midnight; add end-of-day grace so an
+      // offer "valid until 2025-05-31" stays valid through all of May 31.
+      until = Number.isNaN(parsed) ? from + DEFAULT_OFFER_WINDOW_MS : parsed + 24 * 3600 * 1000;
     } else {
+      // Default window is already an absolute 7-day moment — no extra grace.
       until = from + DEFAULT_OFFER_WINDOW_MS;
     }
-    return from <= now && now <= until + 24 * 3600 * 1000;
+    return from <= now && now <= until;
   });
 }
 

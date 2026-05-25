@@ -17,7 +17,6 @@
     "location": {
       "type": "object",
       "description": "Either address or zipCode must be set. address wins when both present. nominatimContact required for any address-based lookup (your email or URL — Nominatim/Overpass usage policy).",
-      "required": ["nominatimContact"],
       "properties": {
         "address": { "type": "string" },
         "zipCode": { "type": "string", "pattern": "^\\d{5}$" },
@@ -31,7 +30,9 @@
       "anyOf": [
         { "required": ["address"] },
         { "required": ["zipCode"] }
-      ]
+      ],
+      "if": { "required": ["address"] },
+      "then": { "required": ["nominatimContact"] }
     },
     "diet": {
       "type": "object",

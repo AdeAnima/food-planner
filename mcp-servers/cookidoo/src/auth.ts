@@ -34,8 +34,13 @@ export async function writeCookieHeader(cookieHeader: string): Promise<void> {
   await mkdir(COOKIE_DIR, { recursive: true });
   const tmp = `${COOKIE_FILE}.tmp.${process.pid}.${Date.now()}`;
   await writeFile(tmp, cookieHeader, { encoding: "utf8", mode: 0o600 });
-  await chmod(tmp, 0o600);
-  await rename(tmp, COOKIE_FILE);
+  try {
+    await chmod(tmp, 0o600);
+    await rename(tmp, COOKIE_FILE);
+  } catch (err) {
+    await unlink(tmp).catch(() => {});
+    throw err;
+  }
 }
 
 export async function deleteCookieHeader(): Promise<boolean> {

@@ -3,4 +3,5 @@ node_modules/
 **/dist/
 .playwright-cli/
 .claude/worktrees/
+.claude/scheduled_tasks.lock
 *.log

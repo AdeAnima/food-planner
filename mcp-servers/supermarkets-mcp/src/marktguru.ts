@@ -207,7 +207,7 @@ export const DEFAULT_BASKET_TERMS = [
 
 const DEFAULT_OFFER_WINDOW_MS = 7 * 24 * 3600 * 1000;
 
-function isCurrentlyValid(o: Offer, now: number): boolean {
+export function isCurrentlyValid(o: Offer, now: number): boolean {
   if (!o.validityDates || o.validityDates.length === 0) return true;
   return o.validityDates.some((d) => {
     const from = Date.parse(d.from);

@@ -89,3 +89,21 @@ Then the configured server path resolves to `cookidoo-mcp/src/index.ts` inside t
   }
 }
 ```
+
+## Subtree sync
+
+`mcp-servers/cookidoo/` is the vendored copy of the standalone repo [`AdeAnima/cookidoo-mcp`](https://github.com/AdeAnima/cookidoo-mcp). Files are committed directly (not a submodule) so that a plain `git clone` of this plugin repo ships them — submodules are not auto-cloned, subtree files are.
+
+`cookidoo` = git remote already configured in the food-planner checkout pointing at the standalone repo.
+
+Pull upstream changes:
+
+```bash
+git subtree pull --prefix=mcp-servers/cookidoo cookidoo main --squash
+```
+
+Push local changes back:
+
+```bash
+git subtree push --prefix=mcp-servers/cookidoo cookidoo main
+```

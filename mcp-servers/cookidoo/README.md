@@ -7,6 +7,13 @@ MCP server for the Cookidoo.de recipe portal. Read + write support is experiment
 - `search_recipes(query, hitsPerPage?)` — Algolia-backed recipe search. Returns title, image, rating, totalTime, category, URL.
 - `get_recipe(id)` — fetches recipe detail (ingredients, instructions, times, yield) by parsing schema.org JSON-LD from the recipe page.
 - `get_week_plan(startDate?, span?)` — reads the current Cookidoo "Meine Woche" plan via `GET /planning/de-DE/api/my-day/planned-recipes/{date}?span={n}`.
+- `get_shopping_list()` — reads the current shopping list via `GET /shopping/de-DE` with `Accept: application/json`. Returns recipe count, a flat ingredient list (each with shopping ingredient ID, owned state, quantity, unit, category, source recipe), and freeform additional items. The ingredient IDs feed `mark_owned` / `unmark_owned`.
+- `get_subscription()` — returns the account's coarse subscription level (`FULL` / `FREE` / `NONE`), derived from the search token. No extra request.
+- `get_subscription_detail()` — current subscription with level, type, status, start date, expiry via `GET /ownership/subscriptions`. Richer/authoritative vs `get_subscription`; one request. `null` if no record.
+- `get_bookmarks()` — lists bookmarked recipes via `GET /organize/de-DE/api/bookmark` (paginated). Each entry: recipe ID, title, image, prep time, locale.
+- `get_collections()` — lists recipe collections via `GET /organize/de-DE/api/custom-list` + `.../managed-list` (vendor Accept, paginated). Merged, tagged `CUSTOMLIST` (user-made) / `MANAGEDLIST` (Vorwerk, follow-only); id, title, author, shared, recipe count.
+- `get_custom_recipes()` — lists the account's own authored recipes via `GET /created-recipes/de-DE` (single request — endpoint returns the full set, not paginated). id (ULID), name, status, work status, timestamps, image.
+- `get_profile()` — reads the community profile via `GET /community/profile` (no locale segment). id, username, public flag, food preferences, Thermomix count.
 - `add_to_week(recipeIds, dayKey)` — adds one or more recipes to a Cookidoo week-plan day.
 - `remove_from_week(recipeId, dayKey)` — removes one recipe from a Cookidoo week-plan day.
 - `clear_week(startDate?, span?)` — removes every recipe in a week-plan date span and reports per-recipe errors.
@@ -54,6 +61,11 @@ When cookies expire (typically weeks/months), re-run steps 1-3.
 
 See `docs/api.md` for full reverse-engineered endpoint documentation captured 2026-05-05.
 
+## Configuration
+
+- `COOKIDOO_LOCALE` — full path locale, default `de-DE`. Sets the domain (`cookidoo.de` → `.co.uk`, `.fr`, …), URL path locale, Algolia index lang, and `Accept-Language`. Unknown locales fall back to `cookidoo.<country>`. Only the request paths are localized: cookie-import validation still expects `cookidoo.de` cookies and `random_recipe` seeds are German, so non-DE is not yet usable end-to-end.
+- `COOKIDOO_ALGOLIA_INDEX` — override the search index name (default `recipes-production-<lang>`). Non-DE index names are inferred and unverified; set this if search returns nothing.
+
 ## Run
 
 ```bash
@@ -88,22 +100,4 @@ Then the configured server path resolves to `cookidoo-mcp/src/index.ts` inside t
     }
   }
 }
-```
-
-## Subtree sync
-
-`mcp-servers/cookidoo/` is the vendored copy of the standalone repo [`AdeAnima/cookidoo-mcp`](https://github.com/AdeAnima/cookidoo-mcp). Files are committed directly (not a submodule) so that a plain `git clone` of this plugin repo ships them — submodules are not auto-cloned, subtree files are.
-
-`cookidoo` = git remote already configured in the food-planner checkout pointing at the standalone repo.
-
-Pull upstream changes:
-
-```bash
-git subtree pull --prefix=mcp-servers/cookidoo cookidoo main --squash
-```
-
-Push local changes back:
-
-```bash
-git subtree push --prefix=mcp-servers/cookidoo cookidoo main
 ```

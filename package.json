@@ -4,6 +4,6 @@
   "private": true,
   "description": "Claude Code plugin: meal-planning workflow over Cookidoo + supermarket offers.",
   "dependencies": {
-    "cookidoo-mcp": "git+ssh://git@github.com/AdeAnima/cookidoo-mcp.git#v0.1.1"
+    "cookidoo-mcp": "git+ssh://git@github.com/AdeAnima/cookidoo-mcp.git#v0.1.2"
   }
 }

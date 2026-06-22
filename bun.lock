@@ -5,7 +5,7 @@
     "": {
       "name": "food-planner",
       "dependencies": {
-        "cookidoo-mcp": "git+ssh://git@github.com/AdeAnima/cookidoo-mcp.git#v0.1.0",
+        "cookidoo-mcp": "git+ssh://git@github.com/AdeAnima/cookidoo-mcp.git#v0.1.1",
       },
     },
   },
@@ -32,9 +32,9 @@
 
     "content-type": ["content-type@1.0.5", "", {}, "sha512-nTjqfcBFEipKdXCv4YDQWCfmcLZKm81ldF0pAopTvyrFGVbcR6P/VAAd5G7N+0tTr8QqiU0tFadD6FK4NtJwOA=="],
 
-    "cookidoo-core": ["cookidoo-core@git+ssh://git@github.com/AdeAnima/cookidoo-core.git#485c81858f4ac100b895ce9106183241ab6d5d05", {}, "485c81858f4ac100b895ce9106183241ab6d5d05"],
+    "cookidoo-core": ["cookidoo-core@git+ssh://git@github.com/AdeAnima/cookidoo-core.git#4ed4122085108d2dd9e7992530051d3467ed6425", {}, "4ed4122085108d2dd9e7992530051d3467ed6425"],
 
-    "cookidoo-mcp": ["cookidoo-mcp@git+ssh://git@github.com/AdeAnima/cookidoo-mcp.git#983d53811dfb7d6e99fa8271c097d9159eb59bf6", { "dependencies": { "@modelcontextprotocol/sdk": "^1.29.0", "cookidoo-core": "git+ssh://git@github.com/AdeAnima/cookidoo-core.git#v0.1.0", "zod": "^3.23.8" } }, "983d53811dfb7d6e99fa8271c097d9159eb59bf6"],
+    "cookidoo-mcp": ["cookidoo-mcp@git+ssh://git@github.com/AdeAnima/cookidoo-mcp.git#4938afabb24c72cd31bc6cc149b9162cc9e46cd5", { "dependencies": { "@modelcontextprotocol/sdk": "^1.29.0", "cookidoo-core": "git+ssh://git@github.com/AdeAnima/cookidoo-core.git#v0.1.1", "zod": "^3.23.8" } }, "4938afabb24c72cd31bc6cc149b9162cc9e46cd5"],
 
     "cookie": ["cookie@0.7.2", "", {}, "sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w=="],
 

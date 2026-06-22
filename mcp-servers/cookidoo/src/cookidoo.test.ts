@@ -1,6 +1,14 @@
 import { test, expect, mock, beforeAll, beforeEach, afterAll } from "bun:test";
 
-mock.module("./auth.ts", () => ({ loadCookieHeader: async () => "stub=1" }));
+// Mock must provide every symbol cookidoo.ts imports from auth.ts, else the module fails to load
+// with "Export named '…' not found". cookidoo.ts imports: loadCookieHeader, setCookieOverride,
+// getCachedToken, setCachedToken. Tests override globalThis.fetch, so these are inert stubs.
+mock.module("./auth.ts", () => ({
+  loadCookieHeader: async () => "stub=1",
+  setCookieOverride: () => {},
+  getCachedToken: () => null,
+  setCachedToken: () => {},
+}));
 
 let addToWeek: typeof import("./cookidoo.ts").addToWeek;
 let getWeekPlan: typeof import("./cookidoo.ts").getWeekPlan;
@@ -209,6 +217,21 @@ test("addToWeek: day-plan read failure throws with actionable message (no silent
   await expect(addToWeek(["r1"], "2026-05-25")).rejects.toThrow(/could not read day plan/);
   // critical: must NOT have fallen through to the write
   expect(calls.some((c) => c.method === "PUT")).toBe(false);
+});
+
+test("addToWeek: day-plan 404 (empty day) → adds all, no throw", async () => {
+  // my-day returns 404 for a day with zero recipes (E004 "Day is not found"), distinct from
+  // 500/auth. Empty day = nothing to dedupe against → add all. Must NOT throw like the 500 path.
+  routeFetch((c) => {
+    if (c.method === "GET" && c.url.includes("/my-day/2026-05-25")) {
+      return new Response("Day is not found", { status: 404 });
+    }
+    return new Response(null, { status: 204 });
+  });
+  const res = await addToWeek(["r1", "r2"], "2026-05-25");
+  expect(res.added).toEqual(["r1", "r2"]);
+  expect(res.skipped).toEqual([]);
+  expect(calls.some((c) => c.method === "PUT")).toBe(true);
 });
 
 // --- custom (CUSTOMER-source) week recipes -----------------------------------

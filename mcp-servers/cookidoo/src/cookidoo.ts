@@ -662,10 +662,17 @@ export async function addToWeek(
         else toAdd.push(id);
       }
     } catch (e) {
-      throw new Error(
-        `add to week: could not read day plan ${dayKey} for dedupe check: ${e instanceof Error ? e.message : String(e)}. ` +
-          "Pass force:true to skip the dedupe read and add unconditionally.",
-      );
+      // 404 = empty day (my-day returns 404+E004 "Day is not found" for a day with zero recipes,
+      // distinct from 400 on a malformed date). Nothing to dedupe against → add all. Any other
+      // failure (500, auth, etc.) still aborts: a silent add on an unknown read error risks dupes.
+      const empty404 = e instanceof Error && /day plan fetch failed: 404/.test(e.message);
+      if (!empty404) {
+        throw new Error(
+          `add to week: could not read day plan ${dayKey} for dedupe check: ${e instanceof Error ? e.message : String(e)}. ` +
+            "Pass force:true to skip the dedupe read and add unconditionally.",
+        );
+      }
+      // empty day: toAdd stays = normalizedIds, skipped stays = []
     }
   }
 

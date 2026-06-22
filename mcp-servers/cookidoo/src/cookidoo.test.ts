@@ -742,21 +742,24 @@ test("createCustomRecipeFull: DELETEs the partial recipe when a later PATCH fail
 });
 
 // --- Phase D: getCustomRecipeDetail defensive mapper --------------------------
-// Response shape is inferred (verify-pending). Mapper must survive BOTH the {type,text}
-// object form (write contract) AND plain-string form (read asymmetry), and BOTH flat
-// and recipeContent-nested layouts. These guard the migrate pass-1 read→recreate pipe.
+// LIVE-VERIFIED shape (.international, 2026-06-21): everything nests under recipeContent with
+// schema.org keys — recipeIngredient/recipeInstructions (PLAIN STRINGS on read), tool (singular),
+// recipeYield{value,unitText}, ISO-8601 durations ("PT5M"). hints is ABSENT from GET (write-only).
+// The mapper (asTextList) ALSO tolerates {type,text} objects defensively. These tests pin both:
+// the live plain-string read AND the defensive {type,text} unwrap. Guards migrate pass-1 read.
 
-test("getCustomRecipeDetail: maps {type,text} objects (write-shape) at top level", async () => {
+test("getCustomRecipeDetail: unwraps {type,text} objects under recipeContent (defensive)", async () => {
   routeFetch(() =>
     json({
-      name: "Suppe",
-      ingredients: [{ type: "INGREDIENT", text: "100 g Mehl" }, { type: "INGREDIENT", text: "1 Zwiebel" }],
-      instructions: [{ type: "STEP", text: "Mischen" }],
-      hints: ["Heiß servieren"],
-      tools: ["TM6"],
-      totalTime: 4200,
-      prepTime: 600,
-      yield: { value: 4, unitText: "Portionen" },
+      recipeContent: {
+        name: "Suppe",
+        recipeIngredient: [{ type: "INGREDIENT", text: "100 g Mehl" }, { type: "INGREDIENT", text: "1 Zwiebel" }],
+        recipeInstructions: [{ type: "STEP", text: "Mischen" }],
+        tool: ["TM6"],
+        totalTime: "PT1H10M", // ISO-8601 → 4200 s
+        prepTime: "PT10M",
+        recipeYield: { value: 4, unitText: "Portionen" },
+      },
     }),
   );
   const d = await getCustomRecipeDetail("01HXYZ");
@@ -764,19 +767,20 @@ test("getCustomRecipeDetail: maps {type,text} objects (write-shape) at top level
   expect(d.name).toBe("Suppe");
   expect(d.ingredients).toEqual(["100 g Mehl", "1 Zwiebel"]); // unwrapped to plain strings
   expect(d.instructions).toEqual(["Mischen"]);
-  expect(d.hints).toEqual(["Heiß servieren"]);
+  expect(d.hints).toBeUndefined(); // never returned by GET
   expect(d.tools).toEqual(["TM6"]);
   expect(d.totalTime).toBe(4200);
+  expect(d.prepTime).toBe(600);
   expect(d.yield).toEqual({ value: 4, unitText: "Portionen" });
 });
 
-test("getCustomRecipeDetail: maps plain-string arrays AND recipeContent-nested layout", async () => {
+test("getCustomRecipeDetail: maps plain-string arrays under recipeContent (live shape)", async () => {
   routeFetch(() =>
     json({
       recipeContent: {
         name: "Salat",
-        ingredients: ["Tomate", "Gurke"], // plain strings, nested
-        instructions: ["Schneiden", "Anrichten"],
+        recipeIngredient: ["Tomate", "Gurke"], // plain strings, the actual read form
+        recipeInstructions: ["Schneiden", "Anrichten"],
       },
     }),
   );

@@ -33,10 +33,10 @@ claude
 
 | Server | Source | Tools |
 |--------|--------|-------|
-| `cookidoo` | `mcp-servers/cookidoo/` | recipes, week-plan, shopping list, bookmarks, ratings |
+| `cookidoo` | [`cookidoo-mcp`](https://github.com/AdeAnima/cookidoo-mcp) git dep (`bin/cookidoo-serve.sh`) | recipes, week-plan, shopping list, bookmarks, ratings |
 | `supermarkets-mcp` | `mcp-servers/supermarkets-mcp/` | Marktguru weekly offers across DE retailers |
 
-Each ships a `bin/serve.sh` that auto-installs Bun deps on first run. Run them by hand via `bun run mcp-servers/<name>/src/index.ts` for debugging.
+`cookidoo` is consumed as a pinned git dependency (no vendored copy): `package.json` pins `cookidoo-mcp` (which pins `cookidoo-core`), and `bin/cookidoo-serve.sh` launches it from `node_modules`. `supermarkets-mcp` ships a local `bin/serve.sh` that auto-installs Bun deps on first run.
 
 ## Skill
 

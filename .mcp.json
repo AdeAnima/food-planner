@@ -8,7 +8,7 @@
     },
     "cookidoo": {
       "type": "stdio",
-      "command": "${CLAUDE_PLUGIN_ROOT}/mcp-servers/cookidoo/bin/serve.sh",
+      "command": "${CLAUDE_PLUGIN_ROOT}/bin/cookidoo-serve.sh",
       "args": [],
       "env": {}
     }

@@ -11,7 +11,12 @@ function summarizeOffer(o: Offer) {
   const adv = o.advertisers?.[0];
   return {
     id: o.id,
+    // product.name is the clean canonical product label (populated on live offers);
+    // description is a marketing sub-line ("aus Bayern, Kl. I Stück") that omits the
+    // product word, so it must never be the primary match/display field.
     title: o.product?.name || o.description?.slice(0, 80),
+    productName: o.product?.name ?? null,
+    category: o.categories?.[0]?.name ?? null,
     description: o.description,
     price: o.price,
     oldPrice: o.oldPrice,

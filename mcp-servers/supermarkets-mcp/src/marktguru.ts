@@ -207,6 +207,52 @@ export const DEFAULT_BASKET_TERMS = [
 
 const DEFAULT_OFFER_WINDOW_MS = 7 * 24 * 3600 * 1000;
 
+// Weekly flyer feeds carry non-grocery rows (cosmetics, furniture, travel, luggage,
+// toys, electronics, clothing). Bounded blocklist by category-name substring — food
+// categories are open-ended, the junk set is not. ponytail: blocklist, add a term when a new junk category leaks.
+const NON_FOOD_CATEGORY_PATTERNS = [
+  "kosmetik", "drogerie", "pflege", "beauty", "parfum", "deo", "duft", "düfte", "make-up", "schminke",
+  "möbel", "wohnen", "haushalt", "geschirr", "küchengeräte", "elektro", "technik",
+  "reise", "ticket", "koffer", "gepäck",
+  "spielzeug", "spielwaren", "kleidung", "mode", "textil", "schuhe",
+  "garten", "baumarkt", "tier", "auto",
+];
+// ponytail: category blocklist catches structural junk; a few marketing-named categories
+// (e.g. "Valentinstag" holding perfume) still slip — acceptable residual, not worth a NLP gate.
+
+export function isFoodOffer(o: Offer): boolean {
+  const cat = o.categories?.[0]?.name?.toLowerCase() ?? "";
+  if (!cat) return true; // no category → keep, don't silently drop
+  return !NON_FOOD_CATEGORY_PATTERNS.some((p) => cat.includes(p));
+}
+
+// Banner mirrors (REWE vs REWE Center vs nahkauf) carry the SAME product at the SAME
+// price under DIFFERENT offer ids, so id-only dedup never collapses them. Key on the
+// product identity instead, preferring a requested-store retailer as the canonical row.
+export function dedupKey(o: Offer): string {
+  const name = (o.product?.name ?? o.description ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+  const cat = (o.categories?.[0]?.name ?? "").toLowerCase();
+  return `${name}|${o.price}|${cat}`;
+}
+
+// Merge term-search results into one deduplicated, food-only, currently-valid list.
+// Exported so getWeeklyOffers and its test share ONE copy (no drift between them).
+export function mergeAndDedup(offers: Offer[], stores: string[] | undefined, now: number): Offer[] {
+  const preferred = new Set((stores ?? []).map((s) => s.toLowerCase()));
+  const byKey = new Map<string, Offer>();
+  for (const o of offers) {
+    if (!isCurrentlyValid(o, now)) continue;
+    if (!isFoodOffer(o)) continue;
+    const key = dedupKey(o);
+    const existing = byKey.get(key);
+    if (!existing) { byKey.set(key, o); continue; }
+    const oPref = preferred.has(o.advertisers?.[0]?.uniqueName?.toLowerCase() ?? "");
+    const ePref = preferred.has(existing.advertisers?.[0]?.uniqueName?.toLowerCase() ?? "");
+    if (oPref && !ePref) byKey.set(key, o); // upgrade to a preferred-store row
+  }
+  return Array.from(byKey.values());
+}
+
 export function isCurrentlyValid(o: Offer, now: number): boolean {
   if (!o.validityDates || o.validityDates.length === 0) return true;
   return o.validityDates.some((d) => {
@@ -306,18 +352,11 @@ export async function getWeeklyOffers(zipCode: string, stores?: string[], terms?
       .join("; ");
     throw new Error(`getWeeklyOffers failed for ${failures.length}/${queries.length} terms (${Math.round(failureRatio * 100)}%). Failure classes: ${summarizeFailureClasses(failures)}. Failed terms: ${failedTerms.join(", ")}. Sample errors: ${sampleErrors}`);
   }
-  const seen = new Set<number>();
-  const merged: Offer[] = [];
-  const now = Date.now();
-  for (const outcome of outcomes) {
-    if (outcome.status !== "ok") continue;
-    for (const o of outcome.results) {
-      if (seen.has(o.id)) continue;
-      if (!isCurrentlyValid(o, now)) continue;
-      seen.add(o.id);
-      merged.push(o);
-    }
-  }
+  // Dedup by product identity (not offer id) so banner mirrors collapse; prefer a
+  // requested-store retailer as the canonical row. Drop non-food and expired offers.
+  // mergeAndDedup is the single shipped copy — its test imports the SAME fn.
+  const allOffers = outcomes.flatMap((o) => (o.status === "ok" ? o.results : []));
+  const merged = mergeAndDedup(allOffers, stores, Date.now());
   const response: SearchResponse = { results: merged, totalResults: merged.length };
   if (failures.length > 0) {
     response.degraded = true;

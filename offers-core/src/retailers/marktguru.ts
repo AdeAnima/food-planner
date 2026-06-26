@@ -217,6 +217,21 @@ async function allSettledWithConcurrency<T, R>(
   return results;
 }
 
+// Marktguru validity timestamps are German local-midnight expressed in UTC (e.g. T22:00:00Z = 00:00 Berlin next day).
+// Convert the instant to the Europe/Berlin calendar date before slicing. en-CA locale formats as YYYY-MM-DD. DST-correct.
+const BERLIN_DATE = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Europe/Berlin",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+function berlinDate(iso: string): string {
+  if (!iso) return "1970-01-01";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "1970-01-01";
+  return BERLIN_DATE.format(d); // YYYY-MM-DD in Europe/Berlin
+}
+
 export function normalizeMarktguru(o: any): RawOffer {
   const p = Number(o.price);
   const cents = (Number.isFinite(p) && p > 0) ? Math.round(p * 100) : null;
@@ -226,10 +241,10 @@ export function normalizeMarktguru(o: any): RawOffer {
     title: String(o.description ?? o.brand?.name ?? "").trim(),
     category: String((o.categories ?? [])[0]?.name ?? "Sonstiges"),
     price: cents,
-    quantity: o.unit ? String(o.unit) : undefined,
+    quantity: undefined, // Marktguru `unit` is a unit-of-measure object {shortName,name}, not a quantity string — v2
     unit: undefined,
-    validFrom: String(v.from ?? "").slice(0, 10) || "1970-01-01",
-    validTo: String(v.to ?? v.until ?? "").slice(0, 10) || "1970-01-01",
+    validFrom: berlinDate(String(v.from ?? "")),
+    validTo: berlinDate(String(v.to ?? v.until ?? "")),
     raw: o,
   };
 }

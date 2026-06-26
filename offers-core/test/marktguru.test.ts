@@ -35,15 +35,24 @@ test("normalizeMarktguru price gate: 0/missing/negative/non-numeric -> null, >0 
   expect(normalizeMarktguru({ id: 5, description: "t", price: 1.99 }).price).toBe(199);
 });
 
-test("normalizeMarktguru reads validityDates array + categories array (not singular)", () => {
+test("normalizeMarktguru converts UTC validity to the Europe/Berlin calendar date", () => {
   const n = normalizeMarktguru({
     id: 9, description: "Bio Äpfel", price: 1.49,
     validityDates: [{ from: "2026-07-01T22:00:00Z", to: "2026-07-04T21:59:00Z" }],
     categories: [{ id: 1, name: "Obst" }],
   });
-  expect(n.validFrom).toBe("2026-07-01");
-  expect(n.validTo).toBe("2026-07-04");
+  expect(n.validFrom).toBe("2026-07-02"); // T22:00Z = 00:00 Berlin next day
+  expect(n.validTo).toBe("2026-07-04");   // T21:59Z = 23:59 Berlin same day
   expect(n.category).toBe("Obst");
+});
+
+test("normalizeMarktguru does not stringify the unit object into quantity", () => {
+  const n = normalizeMarktguru({
+    id: 7, description: "Milch", price: 0.99,
+    unit: { shortName: "l", id: 1, name: "Liter" },
+  });
+  expect(n.quantity).toBeUndefined();
+  expect(n.unit).toBeUndefined();
 });
 
 test("marktguruOffers throws when terms is empty (no catalog endpoint)", () => {

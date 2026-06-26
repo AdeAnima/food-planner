@@ -54,8 +54,8 @@ export function upsertOffers(
   let inserted = 0;
   const tx = db.transaction((rows: RawOffer[]) => {
     for (const o of rows) {
-      if (!Number.isInteger(o.price)) {
-        throw new Error(`upsertOffers: price must be integer cents, got ${o.price} for offerId ${o.offerId}`);
+      if (o.price !== null && !Number.isInteger(o.price)) {
+        throw new Error(`price must be integer cents or null, got ${o.price}`);
       }
       const res = stmt.run({
         $offerId: o.offerId, $retailer: retailer, $scope: scope, $key: storeOrRegionKey,

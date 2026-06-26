@@ -29,9 +29,9 @@ export async function lidlOffers(storeKey: string): Promise<RawOffer[]> {
 }
 
 export function normalizeLidl(raw: any): RawOffer {
-  // Price lives in priceBox.largePartNumeric (euros, float). Percentage-off offers have null — default 0.
-  const eurFloat = raw.priceBox?.largePartNumeric ?? 0;
-  const cents = Math.round(Number(eurFloat) * 100);
+  // Price lives in priceBox.largePartNumeric (euros, float). Percentage-off offers have null — emit null.
+  const lpn = raw.priceBox?.largePartNumeric;
+  const cents = lpn == null ? null : Math.round(Number(lpn) * 100);
 
   // Dates are ISO 8601 with timezone offset: "2026-06-25T00:00:01+00:00" — slice(0,10) gives YYYY-MM-DD.
   return {

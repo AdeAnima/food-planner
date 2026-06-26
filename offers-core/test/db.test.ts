@@ -61,6 +61,16 @@ test("upsertOffers rejects non-integer price", () => {
   ])).toThrow(/integer cents/);
 });
 
+test("upsertOffers accepts null price and reads it back as null", () => {
+  const db = openDb(":memory:");
+  upsertOffers(db, "lidl", "DE-BW", "region", [
+    { offerId: "pct", title: "20% Rabatt", category: "Aktion", price: null, validFrom: "2026-06-29", validTo: "2026-07-05", raw: {} },
+  ]);
+  const rows = queryOffers(db, { sql: "offerId = ?", params: ["pct"] });
+  expect(rows.length).toBe(1);
+  expect(rows[0].price).toBeNull();
+});
+
 test("weekCount counts rows for a region-week", () => {
   const db = openDb(":memory:");
   upsertOffers(db, "lidl", "DE-BW", "region", [mk("a", "2026-06-29"), mk("b", "2026-06-29")]);

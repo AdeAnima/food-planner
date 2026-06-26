@@ -8,7 +8,7 @@ export interface Offer {
   storeOrRegionKey: string;
   title: string;
   category: string;
-  price: number; // integer cents
+  price: number | null; // integer cents, or null if no absolute price
   quantity?: string;
   unit?: string;
   validFrom: string; // YYYY-MM-DD
@@ -19,7 +19,7 @@ export interface RawOffer {
   offerId: string;
   title: string;
   category: string;
-  price: number; // integer cents
+  price: number | null; // integer cents, or null if no absolute price
   quantity?: string;
   unit?: string;
   validFrom: string;

@@ -8,5 +8,8 @@
     "serve": "bun run src/server.ts",
     "sync": "bun run src/sync.ts",
     "test": "bun test"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
   }
 }

@@ -1,0 +1,1148 @@
+{
+  "filters": {
+    "retailers": [
+      {
+        "id": 127153,
+        "name": "ALDI SÜD",
+        "resultsCount": 51
+      },
+      {
+        "id": 126679,
+        "name": "Lidl",
+        "resultsCount": 49
+      },
+      {
+        "id": 126804,
+        "name": "REWE Center",
+        "resultsCount": 40
+      },
+      {
+        "id": 126802,
+        "name": "REWE",
+        "resultsCount": 36
+      },
+      {
+        "id": 126699,
+        "name": "E center",
+        "resultsCount": 35
+      },
+      {
+        "id": 127093,
+        "name": "EDEKA",
+        "resultsCount": 35
+      },
+      {
+        "id": 126735,
+        "name": "Netto Marken-Discount",
+        "resultsCount": 32
+      },
+      {
+        "id": 126981,
+        "name": "AEZ",
+        "resultsCount": 27
+      },
+      {
+        "id": 126654,
+        "name": "Kaufland",
+        "resultsCount": 26
+      },
+      {
+        "id": 126765,
+        "name": "PENNY",
+        "resultsCount": 20
+      },
+      {
+        "id": 127079,
+        "name": "E xpress",
+        "resultsCount": 6
+      },
+      {
+        "id": 137320,
+        "name": "nahkauf",
+        "resultsCount": 5
+      },
+      {
+        "id": 126811,
+        "name": "ROSSMANN",
+        "resultsCount": 4
+      }
+    ],
+    "brands": [
+      {
+        "id": 100050,
+        "name": "Berchtesgadener Land",
+        "resultsCount": 18
+      },
+      {
+        "id": 118816,
+        "name": "Müller",
+        "resultsCount": 18
+      },
+      {
+        "id": 118332,
+        "name": "Milbona",
+        "resultsCount": 14
+      },
+      {
+        "id": 111000,
+        "name": "Andechser Natur",
+        "resultsCount": 12
+      },
+      {
+        "id": 118049,
+        "name": "Meggle",
+        "resultsCount": 11
+      },
+      {
+        "id": 105599,
+        "name": "Danone",
+        "resultsCount": 10
+      },
+      {
+        "id": 106978,
+        "name": "Alpenhain",
+        "resultsCount": 10
+      },
+      {
+        "id": 109546,
+        "name": "Gutes Land",
+        "resultsCount": 10
+      },
+      {
+        "id": 101343,
+        "name": "Bio Smiley",
+        "resultsCount": 9
+      },
+      {
+        "id": 116286,
+        "name": "Landliebe",
+        "resultsCount": 9
+      },
+      {
+        "id": 120932,
+        "name": "Rama",
+        "resultsCount": 9
+      },
+      {
+        "id": 111040,
+        "name": "Gazi",
+        "resultsCount": 8
+      },
+      {
+        "id": 125274,
+        "name": "Zott",
+        "resultsCount": 8
+      },
+      {
+        "id": 114952,
+        "name": "Kerrygold",
+        "resultsCount": 7
+      },
+      {
+        "id": 121772,
+        "name": "Salakis",
+        "resultsCount": 7
+      },
+      {
+        "id": 114401,
+        "name": "Arla",
+        "resultsCount": 6
+      },
+      {
+        "id": 107594,
+        "name": "Ehrmann",
+        "resultsCount": 5
+      },
+      {
+        "id": 111807,
+        "name": "Goldsteig",
+        "resultsCount": 5
+      },
+      {
+        "id": 118369,
+        "name": "Milram",
+        "resultsCount": 5
+      },
+      {
+        "id": 121370,
+        "name": "Bauer",
+        "resultsCount": 5
+      },
+      {
+        "id": 100143,
+        "name": "Gut & Günstig",
+        "resultsCount": 4
+      },
+      {
+        "id": 100154,
+        "name": "Edeka Bio",
+        "resultsCount": 4
+      },
+      {
+        "id": 100414,
+        "name": "Bresso",
+        "resultsCount": 4
+      },
+      {
+        "id": 105238,
+        "name": "Cucina",
+        "resultsCount": 4
+      },
+      {
+        "id": 106977,
+        "name": "Alpenfest",
+        "resultsCount": 4
+      },
+      {
+        "id": 109893,
+        "name": "Fol Epi",
+        "resultsCount": 4
+      },
+      {
+        "id": 113874,
+        "name": "Sunozon",
+        "resultsCount": 4
+      },
+      {
+        "id": 120581,
+        "name": "Président",
+        "resultsCount": 4
+      },
+      {
+        "id": 124811,
+        "name": "Weihenstephan",
+        "resultsCount": 4
+      },
+      {
+        "id": 125458,
+        "name": "Milsani",
+        "resultsCount": 4
+      },
+      {
+        "id": 125597,
+        "name": "Aggenstein",
+        "resultsCount": 4
+      },
+      {
+        "id": 126099,
+        "name": "Saint Agur",
+        "resultsCount": 4
+      },
+      {
+        "id": 100009,
+        "name": "Pustertaler",
+        "resultsCount": 3
+      },
+      {
+        "id": 100789,
+        "name": "Der grüne Altenburger",
+        "resultsCount": 3
+      },
+      {
+        "id": 101481,
+        "name": "Mucci",
+        "resultsCount": 3
+      },
+      {
+        "id": 103462,
+        "name": "Chavroux",
+        "resultsCount": 3
+      },
+      {
+        "id": 105296,
+        "name": "Fage",
+        "resultsCount": 3
+      },
+      {
+        "id": 108450,
+        "name": "Exquisa",
+        "resultsCount": 3
+      },
+      {
+        "id": 109103,
+        "name": "Ferrero",
+        "resultsCount": 3
+      },
+      {
+        "id": 116518,
+        "name": "Leerdammer",
+        "resultsCount": 3
+      },
+      {
+        "id": 119988,
+        "name": "Patros",
+        "resultsCount": 3
+      },
+      {
+        "id": 120667,
+        "name": "Bärenmarke",
+        "resultsCount": 3
+      },
+      {
+        "id": 121634,
+        "name": "Rougette",
+        "resultsCount": 3
+      },
+      {
+        "id": 100794,
+        "name": "Grünländer",
+        "resultsCount": 2
+      },
+      {
+        "id": 101847,
+        "name": "Cien Sun",
+        "resultsCount": 2
+      },
+      {
+        "id": 105974,
+        "name": "Almette",
+        "resultsCount": 2
+      },
+      {
+        "id": 108271,
+        "name": "Käserei Oberli",
+        "resultsCount": 2
+      },
+      {
+        "id": 109369,
+        "name": "BioBio",
+        "resultsCount": 2
+      },
+      {
+        "id": 109401,
+        "name": "Mondo Italiano",
+        "resultsCount": 2
+      },
+      {
+        "id": 110260,
+        "name": "Frico",
+        "resultsCount": 2
+      },
+      {
+        "id": 111172,
+        "name": "Géramont",
+        "resultsCount": 2
+      },
+      {
+        "id": 114735,
+        "name": "Käserei Champignon",
+        "resultsCount": 2
+      },
+      {
+        "id": 115233,
+        "name": "Kiri",
+        "resultsCount": 2
+      },
+      {
+        "id": 118326,
+        "name": "Mila",
+        "resultsCount": 2
+      },
+      {
+        "id": 118794,
+        "name": "Saint Andre",
+        "resultsCount": 2
+      },
+      {
+        "id": 119075,
+        "name": "Nestlé",
+        "resultsCount": 2
+      },
+      {
+        "id": 119256,
+        "name": "Hof-Milch",
+        "resultsCount": 2
+      },
+      {
+        "id": 120212,
+        "name": "Philadelphia",
+        "resultsCount": 2
+      },
+      {
+        "id": 122503,
+        "name": "Adler Edelcreme",
+        "resultsCount": 2
+      },
+      {
+        "id": 125877,
+        "name": "BBQ",
+        "resultsCount": 2
+      },
+      {
+        "id": 151145,
+        "name": "Amsterdam Cheese Company",
+        "resultsCount": 2
+      },
+      {
+        "id": 100083,
+        "name": "Boursin",
+        "resultsCount": 1
+      },
+      {
+        "id": 100810,
+        "name": "Peyrigoux Coupe",
+        "resultsCount": 1
+      },
+      {
+        "id": 101563,
+        "name": "Westland",
+        "resultsCount": 1
+      },
+      {
+        "id": 101921,
+        "name": "Zillertaler BergSenn",
+        "resultsCount": 1
+      },
+      {
+        "id": 102128,
+        "name": "Rotkäppchen Käse",
+        "resultsCount": 1
+      },
+      {
+        "id": 102371,
+        "name": "Casa Modena",
+        "resultsCount": 1
+      },
+      {
+        "id": 102576,
+        "name": "Castello",
+        "resultsCount": 1
+      },
+      {
+        "id": 103125,
+        "name": "Oatly",
+        "resultsCount": 1
+      },
+      {
+        "id": 103781,
+        "name": "Choceur",
+        "resultsCount": 1
+      },
+      {
+        "id": 105241,
+        "name": "Cucina Nobile",
+        "resultsCount": 1
+      },
+      {
+        "id": 105731,
+        "name": "Heiderbeck",
+        "resultsCount": 1
+      },
+      {
+        "id": 106999,
+        "name": "Dr. Oetker",
+        "resultsCount": 1
+      },
+      {
+        "id": 107887,
+        "name": "Emmi",
+        "resultsCount": 1
+      },
+      {
+        "id": 108006,
+        "name": "Ermitage",
+        "resultsCount": 1
+      },
+      {
+        "id": 110722,
+        "name": "Galbani",
+        "resultsCount": 1
+      },
+      {
+        "id": 110922,
+        "name": "Garnier",
+        "resultsCount": 1
+      },
+      {
+        "id": 111238,
+        "name": "Gervais",
+        "resultsCount": 1
+      },
+      {
+        "id": 111614,
+        "name": "Glücksklee",
+        "resultsCount": 1
+      },
+      {
+        "id": 111690,
+        "name": "Bedda",
+        "resultsCount": 1
+      },
+      {
+        "id": 111999,
+        "name": "Biscoteria",
+        "resultsCount": 1
+      },
+      {
+        "id": 112947,
+        "name": "Appenzeller Switzerland",
+        "resultsCount": 1
+      },
+      {
+        "id": 113132,
+        "name": "Lebo Kaas",
+        "resultsCount": 1
+      },
+      {
+        "id": 118376,
+        "name": "Milupa",
+        "resultsCount": 1
+      },
+      {
+        "id": 119009,
+        "name": "Babybel",
+        "resultsCount": 1
+      },
+      {
+        "id": 120174,
+        "name": "Petrella",
+        "resultsCount": 1
+      },
+      {
+        "id": 121411,
+        "name": "Ritter Sport",
+        "resultsCount": 1
+      },
+      {
+        "id": 121492,
+        "name": "Roi de Trefle",
+        "resultsCount": 1
+      },
+      {
+        "id": 121757,
+        "name": "Saint Albray",
+        "resultsCount": 1
+      },
+      {
+        "id": 121966,
+        "name": "Sartori",
+        "resultsCount": 1
+      },
+      {
+        "id": 122162,
+        "name": "Becel",
+        "resultsCount": 1
+      },
+      {
+        "id": 123224,
+        "name": "Storck",
+        "resultsCount": 1
+      },
+      {
+        "id": 123657,
+        "name": "Bergader",
+        "resultsCount": 1
+      },
+      {
+        "id": 123839,
+        "name": "Barbeque",
+        "resultsCount": 1
+      },
+      {
+        "id": 124272,
+        "name": "LiveFresh",
+        "resultsCount": 1
+      },
+      {
+        "id": 124960,
+        "name": "Whiskas",
+        "resultsCount": 1
+      },
+      {
+        "id": 125548,
+        "name": "K-Bio",
+        "resultsCount": 1
+      },
+      {
+        "id": 125629,
+        "name": "Rücker",
+        "resultsCount": 1
+      },
+      {
+        "id": 125719,
+        "name": "K-Classic",
+        "resultsCount": 1
+      },
+      {
+        "id": 126128,
+        "name": "Leckermäulchen",
+        "resultsCount": 1
+      },
+      {
+        "id": 126217,
+        "name": "Loose",
+        "resultsCount": 1
+      },
+      {
+        "id": 128242,
+        "name": "Schokoliebe",
+        "resultsCount": 1
+      },
+      {
+        "id": 128646,
+        "name": "Pusteria",
+        "resultsCount": 1
+      },
+      {
+        "id": 128649,
+        "name": "Speise Zeit",
+        "resultsCount": 1
+      },
+      {
+        "id": 128971,
+        "name": "Meine Kuchenwelt",
+        "resultsCount": 1
+      },
+      {
+        "id": 131980,
+        "name": "Mammutkäse",
+        "resultsCount": 1
+      },
+      {
+        "id": 135764,
+        "name": "Marca Italia",
+        "resultsCount": 1
+      },
+      {
+        "id": 141073,
+        "name": "Der Spanier",
+        "resultsCount": 1
+      },
+      {
+        "id": 141500,
+        "name": "Edeka Herzstücke",
+        "resultsCount": 1
+      },
+      {
+        "id": 143433,
+        "name": "Milprima",
+        "resultsCount": 1
+      }
+    ],
+    "categories": [
+      {
+        "id": 163,
+        "name": "Käse",
+        "resultsCount": 202
+      },
+      {
+        "id": 164,
+        "name": "Joghurt",
+        "resultsCount": 56
+      },
+      {
+        "id": 162,
+        "name": "Milch",
+        "resultsCount": 38
+      },
+      {
+        "id": 166,
+        "name": "Butter",
+        "resultsCount": 28
+      },
+      {
+        "id": 165,
+        "name": "Sahne, Schmand und Crème fraîche",
+        "resultsCount": 11
+      },
+      {
+        "id": 410,
+        "name": "Sonnenschutz",
+        "resultsCount": 7
+      },
+      {
+        "id": 155,
+        "name": "Kekse",
+        "resultsCount": 4
+      },
+      {
+        "id": 132,
+        "name": "Veganes",
+        "resultsCount": 3
+      },
+      {
+        "id": 181,
+        "name": "Desserts",
+        "resultsCount": 3
+      },
+      {
+        "id": 188,
+        "name": "Eis",
+        "resultsCount": 3
+      },
+      {
+        "id": 151,
+        "name": "Schokoladen",
+        "resultsCount": 2
+      },
+      {
+        "id": 324,
+        "name": "Eier",
+        "resultsCount": 2
+      },
+      {
+        "id": 389,
+        "name": "Kakao",
+        "resultsCount": 2
+      },
+      {
+        "id": 158,
+        "name": "Nüsse",
+        "resultsCount": 1
+      },
+      {
+        "id": 189,
+        "name": "Kuchen & Feinbackwaren",
+        "resultsCount": 1
+      },
+      {
+        "id": 405,
+        "name": "Babynahrung",
+        "resultsCount": 1
+      },
+      {
+        "id": 425,
+        "name": "Katzenfutter",
+        "resultsCount": 1
+      },
+      {
+        "id": 474,
+        "name": "Brötchen",
+        "resultsCount": 1
+      }
+    ]
+  },
+  "totalResults": 366,
+  "skippedResults": 0,
+  "results": [
+    {
+      "brand": {
+        "uniqueName": "baerenmarke",
+        "indexOffer": true,
+        "indexLeaflet": false,
+        "id": 120667,
+        "name": "Bärenmarke",
+        "industryId": 1023
+      },
+      "advertisers": [
+        {
+          "uniqueName": "lidl",
+          "indexOffer": true,
+          "indexLeaflet": true,
+          "id": "retailers/126679",
+          "name": "Lidl",
+          "industryId": 1023
+        }
+      ],
+      "categories": [
+        {
+          "uniqueName": null,
+          "indexOffer": false,
+          "indexLeaflet": false,
+          "id": 162,
+          "name": "Milch",
+          "description": "Milch als eines der bekanntesten [Milcherzeugnisse](https://www.marktguru.de/c/milcherzeugnisse-fett-ei) wird kalt, warm, als Kakao oder Kaffeesahne im [Kaffee](https://www.marktguru.de/c/kaffee) verwendet. Milchprodukte von [Müller](https://www.marktguru.de/b/mueller), [Weihenstephan](https://www.marktguru.de/b/weihenstephan) oder [Bärenmarke](https://www.marktguru.de/b/baerenmarke) sind erhältlich bei [Globus](https://www.marktguru.de/rp/globus-prospekte) sowie in vielen anderen Supermärkten.",
+          "parentId": 107
+        }
+      ],
+      "id": 23813468,
+      "description": "1,5/3,5 % Fett. Gekühlt. Je 1 l",
+      "volume": 1,
+      "quantity": 1,
+      "isMultiProduct": true,
+      "price": 0.99,
+      "oldPrice": null,
+      "referencePrice": 0.99,
+      "requiresLoyalityMembership": false,
+      "leafletFlightId": 283802,
+      "validityDates": [
+        {
+          "from": "2026-07-01T22:00:00Z",
+          "to": "2026-07-04T21:59:00Z"
+        }
+      ],
+      "externalId": null,
+      "externalTrackingUrls": [],
+      "externalTrackings": [],
+      "externalUrl": null,
+      "trackFlightImpression": null,
+      "type": "standard",
+      "industries": [
+        {
+          "id": 1023,
+          "name": "Discounter"
+        }
+      ],
+      "product": {
+        "id": 766296,
+        "name": "Haltbare Milch",
+        "description": null
+      },
+      "unit": {
+        "shortName": "l",
+        "id": 1,
+        "name": "Liter"
+      },
+      "images": {
+        "count": 1,
+        "isCdnSuccessfullyPurged": null,
+        "metadata": [
+          {
+            "aspectRatio": 0.883495145631068,
+            "width": 1,
+            "height": 1.1318681318681318
+          }
+        ]
+      },
+      "imageType": "offer"
+    },
+    {
+      "brand": {
+        "uniqueName": "hof-milch",
+        "indexOffer": true,
+        "indexLeaflet": false,
+        "id": 119256,
+        "name": "Hof-Milch",
+        "industryId": 1009
+      },
+      "advertisers": [
+        {
+          "uniqueName": "rewe",
+          "indexOffer": true,
+          "indexLeaflet": true,
+          "id": "retailers/126802",
+          "name": "REWE",
+          "industryId": 1009
+        }
+      ],
+      "categories": [
+        {
+          "uniqueName": null,
+          "indexOffer": false,
+          "indexLeaflet": false,
+          "id": 163,
+          "name": "Käse",
+          "description": null,
+          "parentId": 107
+        }
+      ],
+      "id": 23705912,
+      "description": "versch. Sorten, je 100-g-Pckg.",
+      "volume": 0.1,
+      "quantity": 1,
+      "isMultiProduct": true,
+      "price": 1.49,
+      "oldPrice": null,
+      "referencePrice": 14.9,
+      "requiresLoyalityMembership": false,
+      "leafletFlightId": 282959,
+      "validityDates": [
+        {
+          "from": "2026-06-21T22:00:00Z",
+          "to": "2026-06-27T21:59:00Z"
+        }
+      ],
+      "externalId": null,
+      "externalTrackingUrls": [
+        "https://servedby.flashtalking.com/imp/2/302017;10367284;201;pixel;SevenOneMediaDE;nnCPSevenOneMediaDEKaufDAMeinProspektA4CLEProspektnnAdgapId01984610141314295001/?gdpr=${GDPR}&gdpr_consent=${GDPR_CONSENT_78}&pbMethods=&cachebuster=[CACHEBUSTER]%22"
+      ],
+      "externalTrackings": [
+        {
+          "type": "click",
+          "url": "https://servedby.flashtalking.com/imp/2/302017;10367284;201;pixel;SevenOneMediaDE;nnCPSevenOneMediaDEKaufDAMeinProspektA4CLEProspektnnAdgapId01984610141314295001/?gdpr=${GDPR}&gdpr_consent=${GDPR_CONSENT_78}&pbMethods=&cachebuster=[CACHEBUSTER]%22",
+          "ugpctfet": 100
+        }
+      ],
+      "externalUrl": null,
+      "trackFlightImpression": null,
+      "type": "standard",
+      "industries": [
+        {
+          "id": 1009,
+          "name": "Supermarkt"
+        }
+      ],
+      "product": {
+        "id": 1213707,
+        "name": "Allgäuer Käsescheiben",
+        "description": null
+      },
+      "unit": {
+        "shortName": "kg",
+        "id": 2,
+        "name": "Kilogramm"
+      },
+      "images": {
+        "count": 1,
+        "isCdnSuccessfullyPurged": null,
+        "metadata": [
+          {
+            "aspectRatio": 1.1529933481152994,
+            "width": 1,
+            "height": 0.8673076923076923
+          }
+        ]
+      },
+      "imageType": "offer"
+    },
+    {
+      "brand": {
+        "uniqueName": "hof-milch",
+        "indexOffer": true,
+        "indexLeaflet": false,
+        "id": 119256,
+        "name": "Hof-Milch",
+        "industryId": 1009
+      },
+      "advertisers": [
+        {
+          "uniqueName": "rewe-center",
+          "indexOffer": true,
+          "indexLeaflet": true,
+          "id": "retailers/126804",
+          "name": "REWE Center",
+          "industryId": 1009
+        }
+      ],
+      "categories": [
+        {
+          "uniqueName": null,
+          "indexOffer": false,
+          "indexLeaflet": false,
+          "id": 163,
+          "name": "Käse",
+          "description": null,
+          "parentId": 107
+        }
+      ],
+      "id": 23680802,
+      "description": "versch. Sorten, je 100-g-Pckg.",
+      "volume": 0.1,
+      "quantity": 1,
+      "isMultiProduct": true,
+      "price": 1.49,
+      "oldPrice": null,
+      "referencePrice": 14.9,
+      "requiresLoyalityMembership": false,
+      "leafletFlightId": 282857,
+      "validityDates": [
+        {
+          "from": "2026-06-21T22:00:00Z",
+          "to": "2026-06-27T21:59:59Z"
+        }
+      ],
+      "externalId": null,
+      "externalTrackingUrls": [
+        "https://servedby.flashtalking.com/imp/2/302017;10367284;201;pixel;SevenOneMediaDE;nnCPSevenOneMediaDEKaufDAMeinProspektA4CLEProspektnnAdgapId01984610141314295001/?gdpr=${GDPR}&gdpr_consent=${GDPR_CONSENT_78}&pbMethods=&cachebuster=[CACHEBUSTER]%22"
+      ],
+      "externalTrackings": [
+        {
+          "type": "click",
+          "url": "https://servedby.flashtalking.com/imp/2/302017;10367284;201;pixel;SevenOneMediaDE;nnCPSevenOneMediaDEKaufDAMeinProspektA4CLEProspektnnAdgapId01984610141314295001/?gdpr=${GDPR}&gdpr_consent=${GDPR_CONSENT_78}&pbMethods=&cachebuster=[CACHEBUSTER]%22",
+          "ugpctfet": 100
+        }
+      ],
+      "externalUrl": null,
+      "trackFlightImpression": null,
+      "type": "standard",
+      "industries": [
+        {
+          "id": 1009,
+          "name": "Supermarkt"
+        }
+      ],
+      "product": {
+        "id": 1213707,
+        "name": "Allgäuer Käsescheiben",
+        "description": null
+      },
+      "unit": {
+        "shortName": "kg",
+        "id": 2,
+        "name": "Kilogramm"
+      },
+      "images": {
+        "count": 1,
+        "isCdnSuccessfullyPurged": null,
+        "metadata": [
+          {
+            "aspectRatio": 1.0904059040590406,
+            "width": 1,
+            "height": 0.9170896785109983
+          }
+        ]
+      },
+      "imageType": "offer"
+    },
+    {
+      "brand": {
+        "uniqueName": "milbona",
+        "indexOffer": true,
+        "indexLeaflet": false,
+        "id": 118332,
+        "name": "Milbona",
+        "industryId": 1023
+      },
+      "advertisers": [
+        {
+          "uniqueName": "lidl",
+          "indexOffer": true,
+          "indexLeaflet": true,
+          "id": "retailers/126679",
+          "name": "Lidl",
+          "industryId": 1023
+        }
+      ],
+      "categories": [
+        {
+          "uniqueName": null,
+          "indexOffer": false,
+          "indexLeaflet": false,
+          "id": 162,
+          "name": "Milch",
+          "description": "Milch als eines der bekanntesten [Milcherzeugnisse](https://www.marktguru.de/c/milcherzeugnisse-fett-ei) wird kalt, warm, als Kakao oder Kaffeesahne im [Kaffee](https://www.marktguru.de/c/kaffee) verwendet. Milchprodukte von [Müller](https://www.marktguru.de/b/mueller), [Weihenstephan](https://www.marktguru.de/b/weihenstephan) oder [Bärenmarke](https://www.marktguru.de/b/baerenmarke) sind erhältlich bei [Globus](https://www.marktguru.de/rp/globus-prospekte) sowie in vielen anderen Supermärkten.",
+          "parentId": 107
+        }
+      ],
+      "id": 23805992,
+      "description": "1,5 % Fett. Je 12x 1 l  Entspricht -.65/Stk. beim Kauf von 12 Stk.",
+      "volume": 1,
+      "quantity": 12,
+      "isMultiProduct": false,
+      "price": 7.8,
+      "oldPrice": 10.2,
+      "referencePrice": 0.65,
+      "requiresLoyalityMembership": false,
+      "leafletFlightId": 283721,
+      "validityDates": [
+        {
+          "from": "2026-06-21T22:00:00Z",
+          "to": "2026-06-27T21:59:00Z"
+        }
+      ],
+      "externalId": null,
+      "externalTrackingUrls": [],
+      "externalTrackings": [],
+      "externalUrl": null,
+      "trackFlightImpression": null,
+      "type": "standard",
+      "industries": [
+        {
+          "id": 1023,
+          "name": "Discounter"
+        }
+      ],
+      "product": {
+        "id": 407143,
+        "name": "Haltbare Milch",
+        "description": null
+      },
+      "unit": {
+        "shortName": "l",
+        "id": 1,
+        "name": "Liter"
+      },
+      "images": {
+        "count": 1,
+        "isCdnSuccessfullyPurged": null,
+        "metadata": [
+          {
+            "aspectRatio": 1.1646778042959427,
+            "width": 1,
+            "height": 0.8586065573770492
+          }
+        ]
+      },
+      "imageType": "offer"
+    },
+    {
+      "brand": {
+        "uniqueName": "berchtesgadener-land",
+        "indexOffer": true,
+        "indexLeaflet": false,
+        "id": 100050,
+        "name": "Berchtesgadener Land",
+        "industryId": 1009
+      },
+      "advertisers": [
+        {
+          "uniqueName": "rewe",
+          "indexOffer": true,
+          "indexLeaflet": true,
+          "id": "retailers/126802",
+          "name": "REWE",
+          "industryId": 1009
+        }
+      ],
+      "categories": [
+        {
+          "uniqueName": null,
+          "indexOffer": false,
+          "indexLeaflet": false,
+          "id": 162,
+          "name": "Milch",
+          "description": "Milch als eines der bekanntesten [Milcherzeugnisse](https://www.marktguru.de/c/milcherzeugnisse-fett-ei) wird kalt, warm, als Kakao oder Kaffeesahne im [Kaffee](https://www.marktguru.de/c/kaffee) verwendet. Milchprodukte von [Müller](https://www.marktguru.de/b/mueller), [Weihenstephan](https://www.marktguru.de/b/weihenstephan) oder [Bärenmarke](https://www.marktguru.de/b/baerenmarke) sind erhältlich bei [Globus](https://www.marktguru.de/rp/globus-prospekte) sowie in vielen anderen Supermärkten.",
+          "parentId": 107
+        }
+      ],
+      "id": 23711072,
+      "description": "Frische oder haltbare Bergbauern Milch 1,5/3,5% Fett, je 1-l-Pckg.",
+      "volume": 1,
+      "quantity": 1,
+      "isMultiProduct": true,
+      "price": 0.99,
+      "oldPrice": null,
+      "referencePrice": 0.99,
+      "requiresLoyalityMembership": false,
+      "leafletFlightId": 282959,
+      "validityDates": [
+        {
+          "from": "2026-06-21T22:00:00Z",
+          "to": "2026-06-27T21:59:00Z"
+        }
+      ],
+      "externalId": null,
+      "externalTrackingUrls": [
+        "https://servedby.flashtalking.com/imp/2/302017;10367284;201;pixel;SevenOneMediaDE;nnCPSevenOneMediaDEKaufDAMeinProspektA4CLEProspektnnAdgapId01984610141314295001/?gdpr=${GDPR}&gdpr_consent=${GDPR_CONSENT_78}&pbMethods=&cachebuster=[CACHEBUSTER]%22"
+      ],
+      "externalTrackings": [
+        {
+          "type": "click",
+          "url": "https://servedby.flashtalking.com/imp/2/302017;10367284;201;pixel;SevenOneMediaDE;nnCPSevenOneMediaDEKaufDAMeinProspektA4CLEProspektnnAdgapId01984610141314295001/?gdpr=${GDPR}&gdpr_consent=${GDPR_CONSENT_78}&pbMethods=&cachebuster=[CACHEBUSTER]%22",
+          "ugpctfet": 100
+        }
+      ],
+      "externalUrl": null,
+      "trackFlightImpression": null,
+      "type": "standard",
+      "industries": [
+        {
+          "id": 1009,
+          "name": "Supermarkt"
+        }
+      ],
+      "product": {
+        "id": 333492,
+        "name": "Bergbauern Milch",
+        "description": "~twxde~ ~twxsde~ ~twxby~ ~twxalp~"
+      },
+      "unit": {
+        "shortName": "l",
+        "id": 1,
+        "name": "Liter"
+      },
+      "images": {
+        "count": 1,
+        "isCdnSuccessfullyPurged": null,
+        "metadata": [
+          {
+            "aspectRatio": 0.7709137709137709,
+            "width": 1,
+            "height": 1.2971619365609348
+          }
+        ]
+      },
+      "imageType": "offer"
+    }
+  ]
+}

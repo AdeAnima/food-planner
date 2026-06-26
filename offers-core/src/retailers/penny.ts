@@ -2,13 +2,17 @@ import type { RawOffer } from "../core/types.ts";
 
 const PENNY = "https://www.penny.de/.rest";
 // Penny food category slugs (the per-category endpoint requires a slug, not a number).
+// Confirmed valid against live /angebote SSR (2026-26). Seasonal/non-food slugs rotate
+// weekly and are deliberately excluded; the food core below is stable.
+// ponytail: hardcoded list, derive from /angebote data-category-id if core slugs ever rotate.
 const DEFAULT_CATEGORIES = [
+  "top-angebote",
   "obst-und-gemuese",
+  "kuehlregal",
   "fleisch-und-wurst",
-  "kuehlung",
-  "tiefkuehl",
-  "lebensmittel",
   "getraenke",
+  "suessigkeiten-und-snacks",
+  "drogerie-und-haushalt",
 ];
 
 function currentWeekKey(): string {
@@ -48,9 +52,12 @@ export async function pennyRegion(zip: string): Promise<string> {
 export async function pennyOffers(region: string, categories: string[] = DEFAULT_CATEGORIES): Promise<RawOffer[]> {
   const weekKey = currentWeekKey();
   const out: RawOffer[] = [];
+  let ok = 0;
   for (const slug of categories) {
     const res = await fetch(`${PENNY}/offers/by-category/${weekKey}/${slug}?region=${region}`);
-    if (!res.ok) continue; // category may not exist this week
+    if (res.status === 404) continue; // category absent this week — tolerate, keep going
+    if (!res.ok) throw new Error(`penny offers ${slug}: ${res.status}`); // 5xx/wrong-region = real failure
+    ok++;
     const data = (await res.json()) as any;
     for (const tile of data.offerTiles ?? []) {
       if (tile.primaryType !== "offer") continue;
@@ -59,6 +66,8 @@ export async function pennyOffers(region: string, categories: string[] = DEFAULT
       out.push(o);
     }
   }
+  // Zero successful fetches = bad region/all-404 — empty [] would be indistinguishable from "no offers".
+  if (ok === 0) throw new Error(`penny offers: no category succeeded for region ${region} week ${weekKey}`);
   return out;
 }
 

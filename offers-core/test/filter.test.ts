@@ -28,3 +28,15 @@ test("foodOnly excludes non-food categories", () => {
   expect(w.sql).toContain("category NOT IN");
   expect(w.params.length).toBeGreaterThan(0);
 });
+
+test("empty retailers array is ignored (no IN ())", () => {
+  const w = buildWhere({ retailers: [] });
+  expect(w.sql).toBe("1=1");
+  expect(w.params).toEqual([]);
+});
+
+test("empty category array is ignored (no IN ())", () => {
+  const w = buildWhere({ category: [] });
+  expect(w.sql).toBe("1=1");
+  expect(w.params).toEqual([]);
+});

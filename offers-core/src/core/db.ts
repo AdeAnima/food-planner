@@ -37,7 +37,7 @@ function migrate(db: Database): void {
     `);
   }
   // future migrations: if (v < 2) { db.exec("ALTER TABLE ..."); }
-  db.exec(`PRAGMA user_version = ${CURRENT_VERSION};`);
+  if (v < CURRENT_VERSION) db.exec(`PRAGMA user_version = ${CURRENT_VERSION};`);
 }
 
 export function upsertOffers(
@@ -54,6 +54,9 @@ export function upsertOffers(
   let inserted = 0;
   const tx = db.transaction((rows: RawOffer[]) => {
     for (const o of rows) {
+      if (!Number.isInteger(o.price)) {
+        throw new Error(`upsertOffers: price must be integer cents, got ${o.price} for offerId ${o.offerId}`);
+      }
       const res = stmt.run({
         $offerId: o.offerId, $retailer: retailer, $scope: scope, $key: storeOrRegionKey,
         $title: o.title, $category: o.category, $price: o.price,
@@ -87,13 +90,18 @@ export function upsertStores(db: Database, stores: Store[]): void {
 
 const OFFER_COLS = "offerId, retailer, scope, storeOrRegionKey, title, category, price, quantity, unit, validFrom, validTo";
 
+// SECURITY: `where.sql` MUST come from buildWhere() (fixed column names + ? placeholders),
+// never from caller/user text — it is interpolated directly into the query.
 export function queryOffers(db: Database, where: { sql: string; params: any[] }): Offer[] {
   return db.query(`SELECT ${OFFER_COLS} FROM offers WHERE ${where.sql}`).all(...where.params) as Offer[];
 }
 
-export function getRaw(db: Database, offerId: string, retailer: string): unknown | null {
-  const row = db.query("SELECT raw FROM offers WHERE offerId = ? AND retailer = ? ORDER BY validFrom DESC LIMIT 1")
-    .get(offerId, retailer) as { raw: string } | null;
+export function getRaw(
+  db: Database, retailer: string, storeOrRegionKey: string, offerId: string, validFrom: string,
+): unknown | null {
+  const row = db.query(
+    "SELECT raw FROM offers WHERE retailer=? AND storeOrRegionKey=? AND offerId=? AND validFrom=? LIMIT 1"
+  ).get(retailer, storeOrRegionKey, offerId, validFrom) as { raw: string } | null;
   return row ? JSON.parse(row.raw) : null;
 }
 

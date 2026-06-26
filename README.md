@@ -2,6 +2,8 @@
 
 A Claude Code plugin for weekly meal planning. It bundles two MCP servers and a `/weekplan` skill that runs the full pipeline: scrape current German supermarket offers → pick recipes on Cookidoo → write a 7-day meal plan and a per-store shopping list back to Cookidoo.
 
+> **Unofficial & experimental.** This project is not affiliated with, endorsed by, or sponsored by Vorwerk. It talks to Cookidoo through a reverse-engineered, undocumented API using your own account. See the [Disclaimer](#disclaimer) before using it.
+
 ## Install
 
 ```
@@ -51,6 +53,16 @@ The Cookidoo server vendors its access library under `mcp-servers/cookidoo/src/c
 `--auto` runs it unattended (e.g. from a scheduled task) using profile defaults and no prompts.
 
 See **[SETUP.md](SETUP.md)** for the profile schema and the one-time Cookidoo login.
+
+## Disclaimer
+
+This is an **unofficial**, community-built, experimental project intended for personal and educational use / trial only. It is **not affiliated with, endorsed by, or sponsored by Vorwerk**.
+
+It communicates with Cookidoo through a **reverse-engineered, undocumented web API** using **your own account credentials**. That API may change or break without notice. Automating a logged-in service may be inconsistent with Cookidoo's Terms of Service — **you are solely responsible** for ensuring your use complies with those Terms. Use at your own risk; the authors accept no liability for any consequences to your account or data.
+
+The software is provided "AS IS", without warranty of any kind, as set out in the [MIT License](LICENSE).
+
+**Trademarks.** Thermomix® and Cookidoo® are registered trademarks of Vorwerk International AG (Wollerau, Switzerland); Vorwerk® is a registered trademark of Vorwerk SE & Co. KG (Wuppertal, Germany). These names are used here purely descriptively (§23 MarkenG / Art. 14 EU Trade Mark Directive), solely to identify the service this tool interoperates with. No affiliation or endorsement is implied. All trademarks belong to their respective owners.
 
 ## License
 

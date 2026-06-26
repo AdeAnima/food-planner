@@ -1,4 +1,13 @@
 #!/usr/bin/env bun
+//
+// cookidoo-mcp — UNOFFICIAL client for Cookidoo.
+// Not affiliated with, endorsed by, or sponsored by Vorwerk. Uses a
+// reverse-engineered, undocumented web API (accessed with your own account)
+// that may change or break at any time. Provided AS IS, no warranty — use at
+// your own risk; you are responsible for compliance with Cookidoo's Terms of
+// Service. Cookidoo and Thermomix are trademarks of Vorwerk International AG;
+// Vorwerk is a trademark of Vorwerk SE & Co. KG.
+//
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";

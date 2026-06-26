@@ -5,8 +5,9 @@ Two things must exist before `/weekplan` works: a **diet profile** and a **Cooki
 ## 1. Diet profile
 
 ```bash
-# PLUGIN points at the installed plugin (adjust the marketplace name if you renamed it):
-PLUGIN=~/.claude/plugins/cache/adeanima/food-planner
+# PLUGIN points at the installed plugin (resolves the installed version dir;
+# adjust the marketplace name if you renamed it):
+PLUGIN=$(ls -d ~/.claude/plugins/cache/adeanima/food-planner/*/ | sort -V | tail -1)
 
 mkdir -p ~/.weekplan
 cp "$PLUGIN/skills/weekplan/profile.example.json" ~/.weekplan/profile.json
@@ -35,3 +36,7 @@ Using the [`playwright-cli`](https://github.com/microsoft/playwright) skill (or 
 The jar expires periodically — when `/weekplan` reports expired cookies, repeat step 2–4.
 
 > Requires an active Cookidoo (Vorwerk Thermomix) subscription. The plugin does not create accounts.
+
+## Disclaimer
+
+This is an **unofficial**, experimental project for personal and educational use only — **not affiliated with, endorsed by, or sponsored by Vorwerk**. It uses a reverse-engineered, undocumented Cookidoo web API with your own account; that API may break without notice, and automating a logged-in service may be inconsistent with Cookidoo's Terms of Service, for which **you are solely responsible**. Provided "AS IS", no warranty (see [LICENSE](LICENSE)). Thermomix® and Cookidoo® are trademarks of Vorwerk International AG; Vorwerk® is a trademark of Vorwerk SE & Co. KG; used here descriptively only. See the full [Disclaimer in the README](README.md#disclaimer).

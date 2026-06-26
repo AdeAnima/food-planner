@@ -1,55 +1,57 @@
 # food-planner
 
-Claude Code plugin for weekly meal planning. Bundles two MCP servers and a `/weekplan` skill that orchestrates the full pipeline: Marktguru offer scrape → recipe selection on Cookidoo → meal plan + shopping list write-back.
+A Claude Code plugin for weekly meal planning. It bundles two MCP servers and a `/weekplan` skill that runs the full pipeline: scrape current German supermarket offers → pick recipes on Cookidoo → write a 7-day meal plan and a per-store shopping list back to Cookidoo.
 
-## Components
+## Install
+
+```
+/plugin marketplace add AdeAnima/claude-marketplace
+/plugin install food-planner@adeanima
+```
+
+Then complete the one-time setup (diet profile + Cookidoo login) — see **[SETUP.md](SETUP.md)**. After that, run `/weekplan` from any project.
+
+> The plugin loads its MCP servers only when installed as a plugin (the server paths resolve via `${CLAUDE_PLUGIN_ROOT}`). Opening this repo as a plain project will not start the MCP servers.
+
+## Requirements
+
+- [Bun](https://bun.sh) on `PATH` — both MCP servers run on it and self-install their dependencies on first launch.
+- An active **Cookidoo** (Vorwerk Thermomix) subscription — required for recipe and meal-plan access. The plugin does not create accounts.
+
+## Layout
 
 ```
 food-planner/
-├── .claude-plugin/plugin.json     # Plugin manifest
+├── .claude-plugin/plugin.json      # Plugin manifest
 ├── .mcp.json                       # MCP server definitions (uses ${CLAUDE_PLUGIN_ROOT})
 ├── mcp-servers/
-│   ├── cookidoo/                   # Vorwerk Cookidoo automation (read + write tools)
-│   └── supermarkets-mcp/         # Marktguru weekly-offer search
+│   ├── cookidoo/                   # Cookidoo automation server (self-contained, vendored)
+│   │   ├── src/index.ts            #   MCP entrypoint
+│   │   └── src/core/               #   vendored cookidoo access library
+│   └── supermarkets-mcp/           # Marktguru weekly-offer search
 ├── skills/weekplan/                # /weekplan orchestrator skill
-└── .claude/skills/weekplan         # symlink → skills/weekplan (project-scope discovery)
+└── SETUP.md                        # First-run setup (profile + login)
 ```
-
-## Use
-
-**As project (today, no marketplace needed):**
-```bash
-cd ~/Code/ade_anima/food-planner
-claude
-# /weekplan triggers the skill; cookidoo + supermarkets-mcp MCPs auto-load
-```
-
-**As installable plugin (future):**
-1. Register a local marketplace pointing at this repo
-2. `/plugin install food-planner@<marketplace>`
-3. Both MCPs and skill become available everywhere
 
 ## MCP servers
 
-| Server | Source | Tools |
-|--------|--------|-------|
-| `cookidoo` | [`cookidoo-mcp`](https://github.com/AdeAnima/cookidoo-mcp) git dep (`bin/cookidoo-serve.sh`) | recipes, week-plan, shopping list, bookmarks, ratings |
-| `supermarkets-mcp` | `mcp-servers/supermarkets-mcp/` | Marktguru weekly offers across DE retailers |
+| Server | What it does |
+|--------|--------------|
+| `cookidoo` | Cookidoo recipes, week plan, shopping list, bookmarks, ratings (read + write). |
+| `supermarkets-mcp` | Marktguru weekly offers across German retailers. |
 
-`cookidoo` is consumed as a pinned git dependency (no vendored copy): `package.json` pins `cookidoo-mcp` (which pins `cookidoo-core`), and `bin/cookidoo-serve.sh` launches it from `node_modules`. `supermarkets-mcp` ships a local `bin/serve.sh` that auto-installs Bun deps on first run.
+Both servers are self-contained: each ships its source plus a `bin/serve.sh` that runs `bun install --frozen-lockfile` on first launch (public dependencies only — `@modelcontextprotocol/sdk`, `zod`) and then starts the server. There are no private dependencies and no build step.
 
-## Skill
+The Cookidoo server vendors its access library under `mcp-servers/cookidoo/src/core/` rather than pulling it as an external dependency, so the plugin installs cleanly for anyone with no extra access.
 
-`/weekplan` reads `~/.weekplan/profile.json` (diet, household, address, store filters), geocodes the address to find nearby supermarkets via OSM, pulls current Marktguru offers, picks recipes from Cookidoo, balances offer-savings vs travel-distance, and writes the meal plan + shopping list back to Cookidoo. Outputs a full weekly artifact set under `~/.weekplan/plans/<YYYY-MM-DD>/` (plan.md, shopping-list.md, offers.json, recipes.json). Supports `--auto` for unattended cron runs.
+## The `/weekplan` skill
 
-### Profile
+`/weekplan` reads `~/.weekplan/profile.json` (diet, household, address, store filters), geocodes the address to find nearby supermarkets via OpenStreetMap, pulls current Marktguru offers, picks recipes from Cookidoo, balances offer savings against travel distance, and writes the meal plan plus shopping list back to Cookidoo's "Meine Woche". Every run is persisted under `~/.weekplan/plans/<YYYY-MM-DD>/` (`plan.md`, `shopping-list.md`, `offers.json`, `recipes.json`).
 
-Copy `skills/weekplan/profile.example.json` to `~/.weekplan/profile.json` and edit. Schema: `skills/weekplan/profile.schema.json`.
+`--auto` runs it unattended (e.g. from a scheduled task) using profile defaults and no prompts.
 
-## Cookies
+See **[SETUP.md](SETUP.md)** for the profile schema and the one-time Cookidoo login.
 
-`cookidoo-mcp` requires a logged-in browser session at `~/.cookidoo-mcp/cookies.txt`. Refresh via the `playwright-cli` skill (`login` + `import-state`) when expired.
+## License
 
-## History
-
-This repo started as `~/Code/thermoxMix/` — a monorepo for Cookidoo + Marktguru experiments. It was restructured into a Claude Code plugin layout and moved to `~/Code/ade_anima/food-planner/` on 2026-05-10.
+MIT © Martin Westphal

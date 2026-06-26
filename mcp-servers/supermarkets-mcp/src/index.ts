@@ -36,12 +36,12 @@ server.registerTool(
     title: "List supported supermarket retailers",
     description: "Returns the list of retailer slugs available for a German ZIP code or address. Probes the live API filters facet, falls back to hardcoded list.",
     inputSchema: {
-      zipCode: z.string().optional().describe("German ZIP code (5 digits). Default 81669 if neither zipCode nor address given."),
+      zipCode: z.string().optional().describe("German ZIP code (5 digits). Default 80331 if neither zipCode nor address given."),
       address: z.string().optional().describe("Free-text German address (alternative to zipCode). Geocoded via OSM Nominatim."),
     },
   },
   async ({ zipCode, address }) => {
-    let resolvedZip = "81669";
+    let resolvedZip = "80331";
     if (zipCode || address) {
       const resolved = await resolveZipFromInput({ zipCode, address });
       resolvedZip = resolved.zipCode;

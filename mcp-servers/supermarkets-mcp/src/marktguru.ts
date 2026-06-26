@@ -377,7 +377,7 @@ export const HARDCODED_RETAILERS = [
   "kaufland",
 ];
 
-export async function listStores(zipCode = "81669"): Promise<Array<{ uniqueName: string; name: string; count?: number }>> {
+export async function listStores(zipCode = "80331"): Promise<Array<{ uniqueName: string; name: string; count?: number }>> {
   try {
     const probe = await searchOffers({ query: "milch", zipCode, limit: 50 });
     const slugByName = new Map<string, string>();

@@ -1,0 +1,98 @@
+[
+ {
+  "id": 500000061,
+  "title": "Mini Rispentomaten",
+  "price": {
+   "value": "1.0",
+   "rawValue": 1,
+   "currency": "EUR",
+   "format": "0.00"
+  },
+  "descriptions": [
+   "aus den Niederlanden oder Belgien, Klasse I, 400g"
+  ],
+  "criteria": [
+   {
+    "id": 4,
+    "name": "Superknüller"
+   }
+  ],
+  "ingredients": [],
+  "priceType": "SHOW",
+  "validFrom": "2026-06-22",
+  "validTill": "2026-06-27",
+  "image": {
+   "imageParameter": true,
+   "imageUrl": "https://offer-images.api.edeka/b7d383c9-8e62-4907-89e4-69bbf3e6a0ff_Tomaten_KW26_NEU.png"
+  },
+  "national": true,
+  "badges": [
+   {
+    "type": "Herzstuecke",
+    "image": {
+     "imageParameter": true,
+     "imageUrl": "https://offer-images.api.edeka/6fe5a555-bf00-4108-be1b-0a39bbc334dc_LOG_Herzstuecke_Logo_Final.png"
+    }
+   }
+  ]
+ },
+ {
+  "id": 500000077,
+  "title": "Gutfried Geflügel-Fleischwurst",
+  "price": {
+   "value": "0.0",
+   "rawValue": 0,
+   "currency": "EUR",
+   "format": "0.00"
+  },
+  "descriptions": [
+   "versch. Sorten, 350g - 400g; Normalpreis: € 3,69, 1kg = € 10,54 - € 9,23"
+  ],
+  "criteria": [
+   {
+    "id": 4,
+    "name": "Superknüller"
+   }
+  ],
+  "ingredients": [],
+  "pbAdditionalPoints": 50,
+  "priceType": "HIDE",
+  "validFrom": "2026-06-22",
+  "validTill": "2026-06-27",
+  "image": {
+   "imageParameter": true,
+   "imageUrl": "https://offer-images.api.edeka/2bd06765-8264-484d-a6f0-eb6f4807e526_Gutfried_KW26.png"
+  },
+  "national": true,
+  "badges": []
+ },
+ {
+  "id": 500000063,
+  "title": "Milram Käsescheiben oder Reibekäse",
+  "price": {
+   "value": "1.39",
+   "rawValue": 1.39,
+   "currency": "EUR",
+   "format": "0.00"
+  },
+  "descriptions": [
+   "versch. Sorten und Fettstufen, 150g"
+  ],
+  "criteria": [
+   {
+    "id": 4,
+    "name": "Superknüller"
+   }
+  ],
+  "ingredients": [],
+  "priceType": "SHOW",
+  "validFrom": "2026-06-22",
+  "validTill": "2026-06-27",
+  "image": {
+   "imageParameter": true,
+   "imageUrl": "https://offer-images.api.edeka/e9bf7b5f-a7e7-4c6a-82ab-2cb1f79aded2_Milram_KW26_NEU.png"
+  },
+  "national": true,
+  "badges": []
+ }
+]

@@ -44,3 +44,19 @@ test("unknown route -> 404", async () => {
   const res = await app(new Request("http://x/nope"));
   expect(res.status).toBe(404);
 });
+
+test("GET /stores?retailers=kaufland returns scope (national, no geo fetch)", async () => {
+  const app = makeApp(openDb(":memory:"));
+  const res = await app(new Request("http://x/stores?retailers=kaufland&lat=52&lon=13"));
+  expect(res.status).toBe(200);
+  const body = await res.json();
+  expect(body).toEqual([{ retailer: "kaufland", scope: "national" }]);
+});
+
+test("GET /stores?retailers=penny returns scope (region, no geo fetch)", async () => {
+  const app = makeApp(openDb(":memory:"));
+  const res = await app(new Request("http://x/stores?retailers=penny&lat=52&lon=13"));
+  expect(res.status).toBe(200);
+  const body = await res.json();
+  expect(body).toEqual([{ retailer: "penny", scope: "region" }]);
+});

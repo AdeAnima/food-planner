@@ -7,7 +7,7 @@ A Claude Code plugin for weekly meal planning. It bundles two MCP servers and a 
 ## Install
 
 ```
-/plugin marketplace add AdeAnima/claude-marketplace
+/plugin marketplace add AdeAnima/adeanima-plugins
 /plugin install food-planner@adeanima
 ```
 

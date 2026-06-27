@@ -1,0 +1,15 @@
+{
+  "name": "offers-core",
+  "version": "0.1.0",
+  "description": "Fetch, persist, and serve German supermarket offers.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "bun run src/server.ts",
+    "sync": "bun run src/sync.ts",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  }
+}

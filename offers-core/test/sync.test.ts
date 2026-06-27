@@ -1,6 +1,6 @@
 // test/sync.test.ts
 import { test, expect } from "bun:test";
-import { checkAnomaly } from "../src/core/sync.ts";
+import { checkAnomaly, syncOne } from "../src/core/sync.ts";
 import { openDb, upsertOffers, weekCount } from "../src/core/db.ts";
 import type { RawOffer } from "../src/core/types.ts";
 
@@ -40,4 +40,26 @@ test("weekCount only counts rows for the specified weekKey", () => {
   // Sanity: W27 has 3 rows
   const countW27 = weekCount(db, "test-retailer", "DE-SOUTH", "2026-W27");
   expect(countW27).toBe(3);
+});
+
+// syncOne orchestration with a STUBBED fetchFn — the kaufland sync path (CLI + POST /sync)
+// proven offline end-to-end (fetch→upsert→count→anomaly), not just compile-checked.
+test("syncOne stubbed fetch: inserts rows, returns SyncResult, no false anomaly on first sync", async () => {
+  const db = openDb(":memory:");
+  const fetchFn = async (): Promise<RawOffer[]> => [
+    { offerId: "k1", title: "Milk", category: "dairy", price: 99, validFrom: "2026-06-22", validTo: "2026-06-28", raw: {} },
+    { offerId: "k2", title: "Bread", category: "bakery", price: null, validFrom: "2026-06-22", validTo: "2026-06-28", raw: {} },
+  ];
+  const r = await syncOne(db, "kaufland", "national", "national", fetchFn, "2026-W26", 0);
+  expect(r).toEqual({ retailer: "kaufland", key: "national", inserted: 2, total: 2, anomaly: false });
+  expect(weekCount(db, "kaufland", "national", "2026-W26")).toBe(2);
+});
+
+test("syncOne flags anomaly when this week collapses vs prevWeekCount", async () => {
+  const db = openDb(":memory:");
+  const fetchFn = async (): Promise<RawOffer[]> => [
+    { offerId: "k1", title: "Milk", category: "dairy", price: 99, validFrom: "2026-06-22", validTo: "2026-06-28", raw: {} },
+  ];
+  const r = await syncOne(db, "kaufland", "national", "national", fetchFn, "2026-W26", 100);
+  expect(r.anomaly).toBe(true); // 1 vs 100 → ratio 0.01 < 0.3
 });

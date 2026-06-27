@@ -7,7 +7,7 @@ import { weekCount } from "./core/db.ts";
 import { isoWeekKey } from "./core/week.ts";
 
 const csv = (v: string | null) => (v ? v.split(",").filter(Boolean) : undefined);
-const num = (v: string | null) => (v != null ? Number(v) : undefined);
+const num = (v: string | null) => { if (v == null || v === "") return undefined; const n = Number(v); return Number.isFinite(n) ? n : undefined; };
 
 export function makeApp(db: Database) {
   return async function app(req: Request): Promise<Response> {

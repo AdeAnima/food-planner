@@ -36,6 +36,7 @@ export function buildWhere(query: OfferQuery): { sql: string; params: any[] } {
   }
   if (query.weekKey) { clauses.push("weekKey = ?"); params.push(query.weekKey); }
   if (query.foodOnly) {
+    // ponytail: NULL category = unclassified → excluded from foodOnly by 3VL (NOT IN drops NULL). Deliberate.
     clauses.push(`category NOT IN (${NON_FOOD_CATEGORIES.map(() => "?").join(",")})`);
     params.push(...NON_FOOD_CATEGORIES);
   }

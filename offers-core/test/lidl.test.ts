@@ -8,13 +8,21 @@ test("normalizeLidl emits null price for percentage-off offer", () => {
   expect(normalizeLidl(raw).price).toBeNull();
 });
 
+test("normalizeLidl price contract: finite+positive → cents, else null", () => {
+  expect(normalizeLidl({ priceBox: { largePartNumeric: 1.99 } }).price).toBe(199);
+  expect(normalizeLidl({ priceBox: { largePartNumeric: 0 } }).price).toBeNull();
+  expect(normalizeLidl({ priceBox: { largePartNumeric: -1 } }).price).toBeNull();
+  expect(normalizeLidl({ priceBox: { largePartNumeric: "" } }).price).toBeNull();
+  expect(normalizeLidl({}).price).toBeNull();
+  expect(normalizeLidl({ priceBox: {} }).price).toBeNull();
+});
+
 test("normalizeLidl maps a real euro price to integer cents", () => {
   const raw = (fixture as any).offers.find((o: any) => o.priceBox?.largePartNumeric != null);
   expect(raw).toBeDefined();
-  const expected = Math.round(Number(raw.priceBox.largePartNumeric) * 100);
   const n = normalizeLidl(raw);
-  expect(n.price).toBe(expected);
   expect(Number.isInteger(n.price)).toBe(true);
+  expect(n.price).toBeGreaterThan(0);
 });
 
 test("normalizeLidl shape: offerId, title, validFrom, raw", () => {

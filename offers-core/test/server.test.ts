@@ -60,3 +60,12 @@ test("GET /stores?retailers=penny returns scope (region, no geo fetch)", async (
   const body = await res.json();
   expect(body).toEqual([{ retailer: "penny", scope: "region" }]);
 });
+
+test("POST /sync?retailers=lidl rejects keyed retailer (no network)", async () => {
+  // non-kaufland retailers need a resolved key — route must reject loudly, not fire an undefined-key fetch
+  const app = makeApp(openDb(":memory:"));
+  const res = await app(new Request("http://x/sync?retailers=lidl", { method: "POST" }));
+  expect(res.status).toBe(200);
+  const body = await res.json();
+  expect(body).toEqual([{ retailer: "lidl", error: "needs key resolution (offers-mcp layer)" }]);
+});

@@ -65,19 +65,22 @@ export function makeApp(db: Database) {
     }
 
     if (req.method === "POST" && url.pathname === "/sync") {
-      const names = csv(p.get("retailers")) ?? ["kaufland"]; // national is the only zero-arg fetch
+      const names = csv(p.get("retailers")) ?? ["kaufland"];
       const out: any[] = [];
+      // ponytail: kaufland-only. Only kauflandOffers() is zero-arg; lidl/edeka/penny/rewe/marktguru
+      // each need a resolved key/zip/terms (heterogeneous arities). Narrowing concretely on kaufland
+      // keeps tsc honest (no `as any` masking an undefined-key fetch) — keyed sync is the offers-mcp layer.
       for (const name of names) {
-        const r = (RETAILERS as any)[name];
-        if (!r) continue;
-        const key = name === "kaufland" ? "national" : (p.get("key") ?? "default");
-        // ponytail: prev = THIS week's count (anomaly is best-effort; week-over-week persistence
-        // is a consumer concern per T14 forward-flag). Same wk threaded to weekCount + syncOne.
-        const wk = isoWeekKey(new Date().toISOString().slice(0, 10));
-        const prev = weekCount(db, name, key, wk);
-        out.push(await syncOne(db, name, key, r.scope, () => r.offers(), wk, prev).catch((e: Error) => ({
-          retailer: name, key, error: e.message,
-        })));
+        if (name === "kaufland") {
+          const wk = isoWeekKey(new Date().toISOString().slice(0, 10));
+          // ponytail: prev = THIS week's count (anomaly best-effort per T14 forward-flag).
+          const prev = weekCount(db, "kaufland", "national", wk);
+          out.push(await syncOne(
+            db, "kaufland", "national", RETAILERS.kaufland.scope, RETAILERS.kaufland.offers, wk, prev,
+          ).catch((e: Error) => ({ retailer: name, error: e.message })));
+        } else {
+          out.push({ retailer: name, error: "needs key resolution (offers-mcp layer)" });
+        }
       }
       return Response.json(out);
     }

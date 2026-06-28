@@ -3,8 +3,10 @@ import { join } from "node:path";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 
 const NOMINATIM = "https://nominatim.openstreetmap.org";
-const CACHE_DIR = join(homedir(), ".offers-core");
-const GEOCODE_CACHE = join(CACHE_DIR, "geocode.json");
+// ponytail: OFFERS_CORE_CACHE_DIR seam exists for test isolation — override to avoid touching $HOME in tests;
+// evaluated lazily per-call so env var changes after module load take effect
+function getCacheDir(): string { return process.env.OFFERS_CORE_CACHE_DIR ?? join(homedir(), ".offers-core"); }
+function getGeocodeCachePath(): string { return join(getCacheDir(), "geocode.json"); }
 const FETCH_TIMEOUT_MS = 15000;
 
 export function isGermanZip(input: string): boolean {
@@ -37,13 +39,13 @@ async function fetchWithTimeout(url: string | URL, init: RequestInit = {}, timeo
 
 async function atomicWriteJson(path: string, data: unknown): Promise<void> {
   const tmp = `${path}.tmp.${process.pid}.${Date.now()}`;
-  await mkdir(CACHE_DIR, { recursive: true });
+  await mkdir(getCacheDir(), { recursive: true });
   await writeFile(tmp, JSON.stringify(data, null, 2), { encoding: "utf8", mode: 0o644 });
   await rename(tmp, path);
 }
 
 async function readCache(): Promise<Record<string, CacheEntry>> {
-  try { return JSON.parse(await readFile(GEOCODE_CACHE, "utf8")) as Record<string, CacheEntry>; }
+  try { return JSON.parse(await readFile(getGeocodeCachePath(), "utf8")) as Record<string, CacheEntry>; }
   catch { return {}; }
 }
 
@@ -84,10 +86,26 @@ export async function geocode(query: string): Promise<GeocodeResult> {
     return { error: `result has no German postcode for "${q}"`, candidates: results.map((x) => x.display_name) };
   }
 
+  // ponytail: distinct-postcode heuristic for ambiguity detection; refine by Nominatim importance score if too aggressive
+  // Bare-zip queries are never ambiguous — the zip centroid is unique by construction; skip ambiguity check for them.
+  if (!approximate) {
+    const germanResults = results.filter((x) => isGermanZip(x.address?.postcode ?? ""));
+    if (germanResults.length > 1) {
+      const uniqueZips = new Set(germanResults.map((x) => x.address!.postcode!));
+      if (uniqueZips.size > 1) {
+        const candidates = germanResults.slice(0, 5).map((x) => x.display_name);
+        return {
+          error: `ambiguous query "${q}" — multiple distinct locations found; please refine (e.g. add street or district)`,
+          candidates,
+        };
+      }
+    }
+  }
+
   const out: GeocodeOk = {
     lat: parseFloat(top.lat), lon: parseFloat(top.lon), zip, approximate, displayName: top.display_name,
   };
   cache[cacheKey] = { ...out, cachedAt: Date.now() };
-  await atomicWriteJson(GEOCODE_CACHE, cache);
+  await atomicWriteJson(getGeocodeCachePath(), cache);
   return out;
 }

@@ -24,3 +24,24 @@ test("listStores filters by retailer", () => {
 test("listStores no filter returns all", () => {
   expect(listStores(seed(), {}).length).toBe(3);
 });
+
+import { resolveNearest, storeKey } from "../src/core/locate.ts";
+
+test("storeKey: gln for store scope, region otherwise", () => {
+  expect(storeKey({ retailer: "edeka", storeId: "E1", name: "", zip: "", lat: 0, lon: 0, region: "", gln: "G1", scope: "store" })).toBe("G1");
+  expect(storeKey({ retailer: "lidl", storeId: "L1", name: "", zip: "", lat: 0, lon: 0, region: "L1", gln: "", scope: "region" })).toBe("L1");
+});
+
+test("resolveNearest returns lidl stores sorted by distance with key + distKm", () => {
+  const db = seed();
+  const near = resolveNearest(db, "lidl", 48.137, 11.575); // at Lidl Mitte (L1)
+  expect(near.length).toBe(2);
+  expect(near[0]!.storeId).toBe("L1");       // closest first
+  expect(near[0]!.distKm).toBeLessThan(near[1]!.distKm);
+  expect(near[0]!.key).toBe("L1");           // region key for lidl
+  expect(near[0]!.distKm).toBeCloseTo(0, 1);
+});
+
+test("resolveNearest limit caps result count", () => {
+  expect(resolveNearest(seed(), "lidl", 48.137, 11.575, 1).length).toBe(1);
+});

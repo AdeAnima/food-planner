@@ -21,3 +21,24 @@ export function resolveNearest(
     .sort((a, b) => a.distKm - b.distKm)
     .slice(0, limit);
 }
+
+import { upsertStores } from "./db.ts";
+import { RETAILERS } from "../index.ts";
+
+// ponytail: only lidl exposes a geo (lat/lon) store-fn today. edeka.stores is zip-keyed
+// (needs a zip resolved upstream) — wire it in v2 when find_stores resolves a zip via geocode.
+// The optional `fetcher` param exists for tests (no live network); prod passes none.
+type GeoFetcher = (city: string, lat: number, lon: number) => Promise<Store[]>;
+const GEO_FETCHERS: Record<string, GeoFetcher | undefined> = {
+  lidl: (RETAILERS as Record<string, any>).lidl?.stores,
+};
+
+export async function populateStores(
+  db: Database, retailer: string, lat: number, lon: number, fetcher?: GeoFetcher,
+): Promise<number> {
+  const fetch = fetcher ?? GEO_FETCHERS[retailer];
+  if (!fetch) throw new Error(`no geo store-fn for retailer: ${retailer}`);
+  const stores = await fetch("", lat, lon);
+  upsertStores(db, stores);
+  return stores.length;
+}

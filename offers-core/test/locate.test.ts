@@ -45,3 +45,21 @@ test("resolveNearest returns lidl stores sorted by distance with key + distKm", 
 test("resolveNearest limit caps result count", () => {
   expect(resolveNearest(seed(), "lidl", 48.137, 11.575, 1).length).toBe(1);
 });
+
+import { populateStores } from "../src/core/locate.ts";
+
+test("populateStores upserts fetched lidl stores, then resolveNearest sees them", async () => {
+  const db = openDb(":memory:"); // empty — no seed()
+  // stub the retailer geo fetcher: inject via the optional fetcher param (see impl)
+  const fakeFetch = async (_c: string, _lat: number, _lon: number) => ([
+    { retailer: "lidl", storeId: "L9", name: "Lidl Test", zip: "80331", lat: 48.137, lon: 11.575, region: "L9", gln: "", scope: "region" as const },
+  ]);
+  const n = await populateStores(db, "lidl", 48.137, 11.575, fakeFetch);
+  expect(n).toBe(1);
+  expect(listStores(db, { retailer: "lidl" }).length).toBe(1);
+});
+
+test("populateStores throws for a retailer with no geo store-fn", async () => {
+  const db = openDb(":memory:");
+  await expect(populateStores(db, "kaufland", 48.1, 11.5)).rejects.toThrow(/no geo store/i);
+});

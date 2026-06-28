@@ -2,8 +2,9 @@
 import type { Database } from "bun:sqlite";
 import { openDb, getOffers, getOfferDetails, RETAILERS, syncOne } from "./index.ts";
 import type { InfoGroup, Scope } from "./core/types.ts";
-import { nearestStore } from "./core/stores.ts";
-import { weekCount } from "./core/db.ts";
+import { weekCount, listStores } from "./core/db.ts";
+import { resolveNearest, populateStores } from "./core/locate.ts";
+import { geocode } from "./core/geocode.ts";
 import { isoWeekKey } from "./core/week.ts";
 
 const csv = (v: string | null) => (v ? v.split(",").filter(Boolean) : undefined);
@@ -42,26 +43,26 @@ export function makeApp(db: Database) {
     }
 
     if (req.method === "GET" && url.pathname === "/stores") {
-      const lat = Number(p.get("lat")), lon = Number(p.get("lon"));
-      const names = csv(p.get("retailers")) ?? Object.keys(RETAILERS);
-      const out: any[] = [];
-      for (const name of names) {
-        const r = (RETAILERS as any)[name];
-        // ponytail: only lidl has a geo store-fn (city,lat,lon). edeka.stores is zip-keyed
-        // (edekaMarkets(zip)) — geo lookup for it needs a zip resolved upstream (offers-mcp/CLI).
-        if (r?.stores && name === "lidl") {
-          try {
-            const stores = await r.stores("", lat, lon);
-            out.push({ retailer: name, nearest: nearestStore(stores, lat, lon) });
-          } catch (e) {
-            out.push({ retailer: name, scope: r.scope, error: (e as Error).message });
-          }
-        } else {
-          // edeka (zip-keyed), penny (region), national/marktguru/rewe — no geo nearest here
-          out.push({ retailer: name, scope: r?.scope ?? "national" });
+      const retailer = p.get("retailer") ?? undefined;
+      const region = p.get("region") ?? undefined;
+      const scope = (p.get("scope") ?? undefined) as Scope | undefined;
+      const lat = num(p.get("lat")), lon = num(p.get("lon"));
+      if (retailer && lat !== undefined && lon !== undefined) {
+        const limit = num(p.get("limit"));
+        // populate-IF-EMPTY then resolve — identical to the MCP find_stores (Task 8). Only fetch
+        // live when the stores table has no rows for this retailer; otherwise serve the cache.
+        // Swallow populate failure (no geo fn / network down) and resolve whatever is cached.
+        if (listStores(db, { retailer }).length === 0) {
+          try { await populateStores(db, retailer, lat, lon); } catch { /* serve cached */ }
         }
+        return Response.json(resolveNearest(db, retailer, lat, lon, limit));
       }
-      return Response.json(out);
+      return Response.json(listStores(db, { retailer, region, scope }));
+    }
+
+    if (req.method === "GET" && url.pathname === "/geocode") {
+      const q = p.get("q") ?? "";
+      return Response.json(await geocode(q));
     }
 
     if (req.method === "POST" && url.pathname === "/sync") {

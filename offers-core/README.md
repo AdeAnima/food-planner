@@ -71,15 +71,6 @@ wrong composite key.
 curl 'http://localhost:3000/offers/a?retailer=lidl&storeOrRegionKey=DE-BW&validFrom=2026-06-29&groups=pricing'
 ```
 
-### `GET /stores` — nearest-store locator
-
-`lat` + `lon` + `retailers` (CSV, default all). Only **lidl** has a geo store
-lookup; others return their scope only (edeka is zip-keyed, penny is region-scoped).
-
-```bash
-curl 'http://localhost:3000/stores?retailers=lidl&lat=52.5&lon=13.4'
-```
-
 ### `POST /sync` — trigger a sync
 
 Kaufland-only, same as `bun run sync` (see above). `retailers` CSV, default kaufland.

@@ -48,3 +48,9 @@ export function getOfferDetails(
   if (raw == null) return null;
   return { offerId, ...projectGroups(raw, groups) };
 }
+
+export { geocode } from "./core/geocode.ts";
+export { listStores, upsertStores, weekCount, type StoreFilter } from "./core/db.ts";
+export { resolveNearest, storeKey, populateStores, type ResolvedStore } from "./core/locate.ts";
+export { isoWeekKey } from "./core/week.ts";
+export type { Store } from "./core/types.ts";

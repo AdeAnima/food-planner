@@ -2,7 +2,18 @@
 import { test, expect } from "bun:test";
 import { makeApp } from "../src/server.ts";
 import { openDb } from "../src/index.ts";
-import { upsertOffers } from "../src/core/db.ts";
+import { upsertOffers, upsertStores } from "../src/core/db.ts";
+import type { Store } from "../src/core/types.ts";
+
+function seedStores() {
+  const db = openDb(":memory:");
+  const stores: Store[] = [
+    { retailer: "lidl", storeId: "L1", name: "Lidl Mitte", zip: "80331", lat: 48.137, lon: 11.575, region: "L1", gln: "", scope: "region" },
+    { retailer: "lidl", storeId: "L2", name: "Lidl Nord",  zip: "80807", lat: 48.18,  lon: 11.59,  region: "L2", gln: "", scope: "region" },
+  ];
+  upsertStores(db, stores);
+  return db;
+}
 
 function seed() {
   const db = openDb(":memory:");
@@ -45,20 +56,49 @@ test("unknown route -> 404", async () => {
   expect(res.status).toBe(404);
 });
 
-test("GET /stores?retailers=kaufland returns scope (national, no geo fetch)", async () => {
-  const app = makeApp(openDb(":memory:"));
-  const res = await app(new Request("http://x/stores?retailers=kaufland&lat=52&lon=13"));
+test("GET /stores?retailer=lidl&lat&lon -> nearest sorted with key + distKm", async () => {
+  const app = makeApp(seedStores());
+  const res = await app(new Request("http://x/stores?retailer=lidl&lat=48.137&lon=11.575"));
   expect(res.status).toBe(200);
   const body = await res.json();
-  expect(body).toEqual([{ retailer: "kaufland", scope: "national" }]);
+  expect(body[0].storeId).toBe("L1");
+  expect(body[0].key).toBe("L1");
+  expect(typeof body[0].distKm).toBe("number");
 });
 
-test("GET /stores?retailers=penny returns scope (region, no geo fetch)", async () => {
-  const app = makeApp(openDb(":memory:"));
-  const res = await app(new Request("http://x/stores?retailers=penny&lat=52&lon=13"));
+test("GET /stores?retailer=lidl (no coords) -> listStores", async () => {
+  const app = makeApp(seedStores());
+  const res = await app(new Request("http://x/stores?retailer=lidl"));
+  const body = await res.json();
+  expect(body.length).toBe(2);
+  expect(body[0].distKm).toBeUndefined(); // listStores, no distance
+});
+
+test("GET /stores?retailer=lidl filters by retailer (listStores)", async () => {
+  const db = seedStores();
+  // add a non-lidl row; the retailer filter must exclude it
+  upsertStores(db, [
+    { retailer: "penny", storeId: "P1", name: "Penny", zip: "80331", lat: 48.1, lon: 11.5, region: "R1", gln: "", scope: "region" },
+  ]);
+  const app = makeApp(db);
+  const res = await app(new Request("http://x/stores?retailer=lidl"));
   expect(res.status).toBe(200);
   const body = await res.json();
-  expect(body).toEqual([{ retailer: "penny", scope: "region" }]);
+  expect(body.length).toBe(2);
+  expect(body.every((s: Store) => s.retailer === "lidl")).toBe(true);
+});
+
+test("GET /stores?scope=region filters by scope (no coords, listStores)", async () => {
+  const db = seedStores();
+  upsertStores(db, [
+    { retailer: "kaufland", storeId: "K1", name: "Kaufland", zip: "80331", lat: 48.1, lon: 11.5, region: "", gln: "", scope: "national" },
+  ]);
+  const app = makeApp(db);
+  const res = await app(new Request("http://x/stores?scope=region"));
+  expect(res.status).toBe(200);
+  const body = await res.json();
+  expect(body.every((s: Store) => s.scope === "region")).toBe(true);
+  expect(body.some((s: Store) => s.scope === "national")).toBe(false);
 });
 
 test("POST /sync?retailers=lidl rejects keyed retailer (no network)", async () => {

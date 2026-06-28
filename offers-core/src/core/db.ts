@@ -88,6 +88,22 @@ export function upsertStores(db: Database, stores: Store[]): void {
   tx(stores);
 }
 
+export interface StoreFilter { retailer?: string; region?: string; scope?: Scope; }
+
+export function listStores(db: Database, filter: StoreFilter): Store[] {
+  const clauses: string[] = [];
+  const params: any[] = [];
+  if (filter.retailer) { clauses.push("retailer = ?"); params.push(filter.retailer); }
+  if (filter.region)   { clauses.push("region = ?");   params.push(filter.region); }
+  if (filter.scope)    { clauses.push("scope = ?");     params.push(filter.scope); }
+  const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";
+  const rows = db.query(`
+    SELECT retailer, storeId, name, zip, lat, lon, region, gln, scope
+    FROM stores ${where}
+  `).all(...params) as Store[];
+  return rows;
+}
+
 const OFFER_COLS = "offerId, retailer, scope, storeOrRegionKey, title, category, price, quantity, unit, validFrom, validTo";
 
 // SECURITY: `where.sql` MUST come from buildWhere() (fixed column names + ? placeholders),

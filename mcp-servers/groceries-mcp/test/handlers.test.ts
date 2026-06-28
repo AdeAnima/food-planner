@@ -13,13 +13,21 @@ function seed() {
   return db;
 }
 
-test("findStores returns nearest with key + distKm (pre-seeded; populate fails offline, falls through)", async () => {
-  // DB pre-seeded by seed(). populateStores would hit the network for lidl; offline it
-  // throws and findStores swallows it, then resolves the already-present rows. No live network.
+test("findStores returns nearest with key + distKm (pre-seeded; populate skipped, non-empty)", async () => {
+  // DB pre-seeded → listStores non-empty → populateStores NOT called → no network. Resolves rows.
   const h = makeHandlers(seed());
   const r = (await h.findStores("lidl", 48.137, 11.575)) as any[];
   expect(r[0].key).toBe("L1");
   expect(typeof r[0].distKm).toBe("number");
+});
+
+test("findStores swallows a populate failure on empty DB and returns [] (no network)", async () => {
+  // Empty DB → enters the populate branch. kaufland has NO geo store-fn, so populateStores
+  // throws SYNCHRONOUSLY (no HTTP). findStores must swallow it and resolve []. Delete the
+  // try/catch in handlers.ts and the throw escapes → this await rejects → test fails.
+  const h = makeHandlers(openDb(":memory:"));
+  const r = (await h.findStores("kaufland", 48.137, 11.575)) as any[];
+  expect(r).toEqual([]);
 });
 
 test("searchOffers on empty DB returns empty array", () => {

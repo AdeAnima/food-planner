@@ -88,6 +88,26 @@ Kaufland-only, same as `bun run sync` (see above). `retailers` CSV, default kauf
 curl -X POST 'http://localhost:3000/sync?retailers=kaufland'
 ```
 
+### `GET /geocode` — address/zip → coordinates
+
+`q` = free-text German address or a 5-digit zip. Returns `{lat, lon, zip, approximate, displayName}`
+or `{error, candidates?}`. A bare zip resolves to the postcode centroid with `approximate: true`
+(coarse — pass a full address for accurate distance). Requires `WEEKPLAN_CONTACT` env (Nominatim policy).
+
+```bash
+curl 'http://localhost:3000/geocode?q=Marienplatz+München'
+```
+
+### `GET /stores` — list / nearest store lookup
+
+With `retailer`+`lat`+`lon` (+ optional `limit`): nearest stores sorted by straight-line
+`distKm`, each carrying its retailer `key`. Without coords: filtered list (`retailer`, `region`,
+`scope`). Pure lookup — never fetches offers.
+
+```bash
+curl 'http://localhost:3000/stores?retailer=lidl&lat=48.137&lon=11.575'
+```
+
 ## Retailers
 
 | Retailer  | Scope    | Status                                  |

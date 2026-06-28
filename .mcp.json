@@ -11,6 +11,12 @@
       "command": "${CLAUDE_PLUGIN_ROOT}/mcp-servers/cookidoo/bin/serve.sh",
       "args": [],
       "env": {}
+    },
+    "groceries-mcp": {
+      "type": "stdio",
+      "command": "${CLAUDE_PLUGIN_ROOT}/mcp-servers/groceries-mcp/bin/serve.sh",
+      "args": [],
+      "env": {}
     }
   }
 }
